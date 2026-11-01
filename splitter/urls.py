@@ -11,4 +11,5 @@ urlpatterns = [
     path("splitter/<int:job_id>/retry/", views.retry, name="retry"),
     path("splitter/<int:job_id>/delete/", views.delete, name="delete"),
     path("splitter/<int:job_id>/zip/", views.download_zip, name="zip"),
+    path("splitter/<int:job_id>/part/<int:index>/", views.part_file, name="part"),
 ]

@@ -24,11 +24,11 @@
     <section class="parts" aria-label="الأجزاء">
       {% for p in job.parts.all %}
       <article class="part">
-        <video controls preload="metadata" src="{{ p.file.url }}"></video>
+        <video controls preload="metadata" src="{% url 'splitter:part' job.pk p.index %}"></video>
         <div class="part-info">
           <strong>الجزء {{ p.index }}</strong>
           <span class="muted small-txt">من {{ p.start|clock }} · المدة {{ p.duration|clock }}</span>
-          <a class="btn ghost small" href="{{ p.file.url }}" download="part_{{ p.index }}.mp4">تحميل</a>
+          <a class="btn ghost small" href="{% url 'splitter:part' job.pk p.index %}?download=1">تحميل</a>
         </div>
       </article>
       {% endfor %}

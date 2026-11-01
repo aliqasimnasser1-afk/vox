@@ -114,3 +114,43 @@ class SplitterTests(TestCase):
     def test_login_required(self):
         self.client.logout()
         self.assertEqual(self.client.get(reverse("splitter:index")).status_code, 302)
+
+
+@override_settings(MEDIA_ROOT=MEDIA)
+class PartAccessTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        if not services.tools_available():
+            raise cls.skipTest(cls, "ffmpeg not installed")
+        cls.video = make_video(6)
+
+    def setUp(self):
+        self.user = User.objects.create_user("o1", "o1@test.dev", PW)
+        self.client.force_login(self.user)
+        from unittest import mock
+        with mock.patch.object(services, "start_job", side_effect=services.process_job):
+            self.client.post(reverse("splitter:index"), {
+                "video": SimpleUploadedFile("c.mp4", self.video, content_type="video/mp4"), "amount": 3, "unit": "s"})
+        self.job = VideoJob.objects.get()
+
+    def test_owner_gets_file_with_range_support(self):
+        url = reverse("splitter:part", args=[self.job.pk, 1])
+        full = self.client.get(url)
+        self.assertEqual(full.status_code, 200)
+        self.assertEqual(full["Accept-Ranges"], "bytes")
+        r = self.client.get(url, HTTP_RANGE="bytes=0-99")
+        self.assertEqual(r.status_code, 206)
+        self.assertEqual(len(r.content), 100)
+        self.assertEqual(self.client.get(url, HTTP_RANGE="bytes=999999999-").status_code, 416)
+
+    def test_other_user_and_anonymous_blocked(self):
+        url = reverse("splitter:part", args=[self.job.pk, 1])
+        self.client.force_login(User.objects.create_user("o2", "o2@test.dev", PW))
+        self.assertEqual(self.client.get(url).status_code, 404)
+        self.client.logout()
+        self.assertEqual(self.client.get(url).status_code, 302)
+
+    def test_media_route_does_not_expose_videos(self):
+        part = self.job.parts.first()
+        self.assertEqual(self.client.get("/" + part.file.url.lstrip("/")).status_code, 404)
