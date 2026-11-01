@@ -12,20 +12,16 @@
     {% include "_avatar.html" with profile=owner.profile cls="xl" %}
     <div class="profile-actions">
       {% if owner == user %}
-        <a class="btn ghost" href="{% url 'accounts:profile_edit' %}">{% include "_icon.html" with name="edit" %} تعديل الملف</a>
+        <a class="btn ghost keep-label" href="{% url 'accounts:profile_edit' %}" title="تعديل الملف">{% include "_icon.html" with name="edit" %}<span class="btn-label">تعديل الملف</span></a>
       {% else %}
         {% if friend_status == 'friends' %}
-          <a class="btn primary" href="{% url 'social:thread' owner.username %}">{% include "_icon.html" with name="message" %} رسالة</a>
-          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'unfriend' %}" data-confirm="لن تتمكنا من تبادل الرسائل الخاصة بعد إزالته من أصدقائك." data-confirm-title="إزالة صديق" data-confirm-ok="نعم، أزِله">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn ghost" title="أصدقاء">{% include "_icon.html" with name="user-check" %} صديق</button></form>
-        {% elif friend_status == 'sent' %}
-          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'cancel' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn ghost">{% include "_icon.html" with name="clock" %} إلغاء الطلب</button></form>
-        {% elif friend_status == 'received' %}
-          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'accept' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn primary">{% include "_icon.html" with name="check" %} قبول الصداقة</button></form>
+          <a class="btn primary" href="{% url 'social:thread' owner.username %}" title="رسالة" aria-label="رسالة">{% include "_icon.html" with name="message" %}<span class="btn-label">رسالة</span></a>
+          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'unfriend' %}" data-confirm="سيُزال من أصدقائك، ولن تتمكنا من تبادل الرسائل، ولن يستطيع إضافتك من جديد إلا إذا أضفتَه أنت." data-confirm-title="إزالة صديق" data-confirm-ok="نعم، أزِله">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn ghost" title="أصدقاء (اضغط للإزالة)" aria-label="صديق، اضغط للإزالة">{% include "_icon.html" with name="user-check" %}<span class="btn-label">صديق</span></button></form>
         {% else %}
-          <form method="post" action="{% url 'social:friend_request' owner.username %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn primary">{% include "_icon.html" with name="user-plus" %} إضافة صديق</button></form>
+          <form method="post" action="{% url 'social:friend_request' owner.username %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn primary" title="إضافة صديق" aria-label="إضافة صديق">{% include "_icon.html" with name="user-plus" %}<span class="btn-label">إضافة صديق</span></button></form>
         {% endif %}
         <form method="post" action="{% url 'feed:follow' owner.username %}">{% csrf_token %}
-          <button class="btn ghost">{% if is_following %}إلغاء المتابعة{% else %}متابعة{% endif %}</button>
+          <button class="btn ghost" title="{% if is_following %}إلغاء المتابعة{% else %}متابعة{% endif %}" aria-label="{% if is_following %}إلغاء المتابعة{% else %}متابعة{% endif %}">{% include "_icon.html" with name=follow_icon|default:"bell" %}<span class="btn-label">{% if is_following %}تتابعه{% else %}متابعة{% endif %}</span></button>
         </form>
       {% endif %}
     </div>

@@ -9,7 +9,7 @@
     <span class="conv-main">
       <span class="conv-top"><strong>{{ r.user.profile.display_name }}</strong><span class="muted small-txt" dir="ltr">@{{ r.user.username }}</span>
         {% if r.last %}<span class="muted small-txt conv-time">{{ r.last.created_at|timesince }}</span>{% endif %}</span>
-      <span class="conv-last muted">{% if r.last %}{% if r.last.sender_id == user.id %}أنت: {% endif %}{{ r.last.body|truncatechars:60 }}{% else %}ابدأ المحادثة{% endif %}</span>
+      <span class="conv-last muted">{% if r.last %}{% if r.last.sender_id == user.id %}أنت: {% endif %}{{ r.last.preview|truncatechars:60 }}{% else %}ابدأ المحادثة{% endif %}</span>
     </span>
     {% if r.unread %}<span class="badge">{{ r.unread }}</span>{% endif %}
   </a>

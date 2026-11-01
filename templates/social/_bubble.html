@@ -1,4 +1,15 @@
-<div class="bubble {% if m.sender_id == request.user.id %}mine{% else %}theirs{% endif %}" data-id="{{ m.id }}">
-  <p>{{ m.body }}</p>
-  <time class="small-txt">{{ m.created_at|date:"H:i" }}</time>
+<div class="bubble {% if m.sender_id == request.user.id %}mine{% else %}theirs{% endif %}{% if m.kind == 'sticker' %} sticker{% elif m.kind == 'image' %} has-image{% elif m.emoji_only %} emoji-only{% endif %}" id="msg-{{ m.id }}" data-id="{{ m.id }}">
+  {% if m.sender_id == request.user.id %}
+  <button type="button" class="msg-del" hx-post="{% url 'social:message_delete' m.id %}" hx-target="#msg-{{ m.id }}" hx-swap="outerHTML"
+          hx-confirm="حذف هذه الرسالة؟" data-confirm-title="حذف الرسالة" data-confirm-text="ستُحذف الرسالة عندك وعند {{ m.recipient.profile.display_name }}." data-confirm-ok="نعم، احذفها" aria-label="حذف الرسالة">{% include "_icon.html" with name="trash" %}</button>
+  {% endif %}
+  {% if m.kind == 'sticker' %}
+    <span class="sticker-face" role="img" aria-label="ملصق">{{ m.body }}</span>
+  {% elif m.kind == 'image' %}
+    <a href="{% url 'social:message_image' m.id %}" data-lightbox="image" class="chat-img" aria-label="عرض الصورة"><img src="{% url 'social:message_image' m.id %}" alt="صورة مرسلة" loading="lazy"></a>
+    {% if m.body %}<p>{{ m.body }}</p>{% endif %}
+  {% else %}
+    <p>{{ m.body }}</p>
+  {% endif %}
+  <span class="meta"><time>{{ m.created_at|date:"H:i" }}</time>{% if m.sender_id == request.user.id %}<span class="ticks{% if m.read_at %} read{% endif %}" id="tick-{{ m.id }}" title="{% if m.read_at %}تمت القراءة{% else %}تم الإرسال{% endif %}">{% include "_icon.html" with name="check-check" %}</span>{% endif %}</span>
 </div>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}{{ other.profile.display_name }} · الرسائل{% endblock %}
 {% block content %}
 <header class="page-head">
@@ -11,16 +12,39 @@
 
 <div class="chat" id="chat">
   <div class="msgs" id="msgs">
-    {% for m in msgs %}{% include "social/_bubble.html" %}
-    {% empty %}<p class="muted pad small-pad" id="chat-empty">لا رسائل بعد. قل مرحباً.</p>{% endfor %}
+    {% for it in items %}
+      {% if it.sep %}<div class="day-sep"><span>{{ it.sep }}</span></div>
+      {% else %}{% include "social/_bubble.html" with m=it.m %}{% endif %}
+    {% empty %}<p class="muted pad small-pad" id="chat-empty">لا رسائل بعد. قل مرحباً، أو أرسل ملصقاً.</p>{% endfor %}
     <div id="poller" hx-get="{% url 'social:poll' other.username %}?after={{ last_id }}" hx-trigger="every 3s" hx-swap="outerHTML"></div>
   </div>
-  <form class="chat-form" method="post" action="{% url 'social:send' other.username %}"
-        hx-post="{% url 'social:send' other.username %}" hx-target="#poller" hx-swap="beforebegin" data-reset-on-success>
-    {% csrf_token %}
-    <label class="sr" for="body">اكتب رسالة</label>
-    <textarea id="body" name="body" rows="1" maxlength="1000" placeholder="اكتب رسالة…" required autocomplete="off"></textarea>
-    <button class="btn primary send-btn" aria-label="إرسال">{% include "_icon.html" with name="send" %}</button>
-  </form>
+
+  <div class="chat-dock">
+    <div class="picker" id="picker" hidden>
+      <div class="picker-tabs" role="tablist">
+        <button type="button" class="ptab on" data-ptab="emoji" role="tab">{% include "_icon.html" with name="smile" %} إيموجي</button>
+        <button type="button" class="ptab" data-ptab="stickers" role="tab">{% include "_icon.html" with name="sticker" %} ملصقات</button>
+      </div>
+      <div class="picker-body" id="picker-body"></div>
+    </div>
+
+    <div class="attach-preview" id="attach-preview" hidden>
+      <img alt="" id="attach-img"><span id="attach-name" class="small-txt muted"></span>
+      <button type="button" class="preview-x inline" id="attach-x" aria-label="إزالة الصورة">{% include "_icon.html" with name="x" %}</button>
+    </div>
+
+    <form class="chat-form" id="chat-form" method="post" action="{% url 'social:send' other.username %}" enctype="multipart/form-data"
+          hx-post="{% url 'social:send' other.username %}" hx-encoding="multipart/form-data" hx-target="#poller" hx-swap="beforebegin" data-reset-on-success
+          data-sticker-url="{% url 'social:send' other.username %}">
+      {% csrf_token %}
+      <button type="button" class="chat-tool" id="emoji-btn" aria-label="إيموجي وملصقات" aria-expanded="false">{% include "_icon.html" with name="smile" %}</button>
+      <label class="chat-tool" for="chat-image" title="إرفاق صورة" aria-label="إرفاق صورة">{% include "_icon.html" with name="image" %}</label>
+      <input type="file" name="image" id="chat-image" accept="image/*" hidden>
+      <label class="sr" for="body">اكتب رسالة</label>
+      <textarea id="body" name="body" rows="1" maxlength="1000" placeholder="اكتب رسالة…" autocomplete="off"></textarea>
+      <button class="btn primary send-btn" aria-label="إرسال">{% include "_icon.html" with name="send" %}</button>
+    </form>
+  </div>
 </div>
+<script src="{% static 'chat.js' %}" defer></script>
 {% endblock %}

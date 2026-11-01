@@ -5,7 +5,8 @@ A small X-style social app built with Django. Local development only.
 **Features:** email sign-up and login, 280-character posts, likes and favorites (HTMX, no page reload),
 notification center with a live unread badge (polls every 8s), follow/unfollow with a "following"
 timeline and follower lists, full profiles (avatar upload, bio, location, website, posts and likes tabs),
-friends by username (requests, accept/decline) and private messages between friends, posts with images or
+friends added by username in one step (mutual, instant; removing a friend blocks re-adding until you add them back) and
+WhatsApp-style private chat between friends (emoji picker, stickers, images, read ticks, day headings, delete for everyone), posts with images or
 videos, hashtags with a trending list, explore and search, a separate compose page, a private favorites tab on your
 own profile, post pages, who-to-follow suggestions, responsive layout (sidebar, right rail, mobile bottom nav),
 video splitter (upload a video, choose a length in seconds or minutes; fast stream-copy mode splits a

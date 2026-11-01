@@ -104,7 +104,7 @@
   // Chat: reset the form after a successful htmx send, keep the newest message in view.
   document.addEventListener('htmx:afterRequest', function (e) {
     var f = e.detail.elt;
-    if (f.matches && f.matches('form[data-reset-on-success]') && e.detail.successful) {
+    if (f.matches && f.matches('form[data-reset-on-success]') && e.detail.successful && e.detail.xhr.status === 200) {
       f.reset();
       var t = f.querySelector('textarea');
       if (t) { t.style.height = ''; t.focus(); }

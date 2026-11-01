@@ -64,7 +64,7 @@
       <a href="{% url 'feed:bookmarks' %}" class="{% if nav == 'bookmarks' %}active{% endif %}" {% if nav == 'bookmarks' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="bookmark" %}<span class="nav-label">المفضلة</span></a>
 
       <p class="nav-title">التواصل</p>
-      <a href="{% url 'social:friends' %}" class="{% if nav == 'friends' %}active{% endif %}" {% if nav == 'friends' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="users" %}<span class="nav-label">الأصدقاء</span>{% if friend_requests_count %}<span class="badge">{{ friend_requests_count }}</span>{% endif %}</a>
+      <a href="{% url 'social:friends' %}" class="{% if nav == 'friends' %}active{% endif %}" {% if nav == 'friends' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="users" %}<span class="nav-label">الأصدقاء</span></a>
       <a href="{% url 'social:inbox' %}" class="{% if nav == 'messages' %}active{% endif %}" {% if nav == 'messages' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="message" %}<span class="nav-label">الرسائل</span>{% if unread_messages_count %}<span class="badge">{{ unread_messages_count }}</span>{% endif %}</a>
       <a href="{% url 'feed:notifications' %}" class="{% if nav == 'notifications' %}active{% endif %}" {% if nav == 'notifications' %}aria-current="page"{% endif %}>
         {% include "_icon.html" with name="bell" %}<span class="nav-label">الإشعارات</span>{% include "feed/_badge.html" %}
@@ -133,7 +133,7 @@
 
 <nav class="bottom-nav" aria-label="القائمة السفلية">
   <a href="{% url 'feed:home' %}" class="{% if nav == 'home' %}active{% endif %}" aria-label="الرئيسية">{% include "_icon.html" with name="home" %}</a>
-  <a href="{% url 'social:friends' %}" class="{% if nav == 'friends' %}active{% endif %}" aria-label="الأصدقاء">{% include "_icon.html" with name="users" %}{% if friend_requests_count %}<span class="dot"></span>{% endif %}</a>
+  <a href="{% url 'social:friends' %}" class="{% if nav == 'friends' %}active{% endif %}" aria-label="الأصدقاء">{% include "_icon.html" with name="users" %}</a>
   <a href="{% url 'social:inbox' %}" class="{% if nav == 'messages' %}active{% endif %}" aria-label="الرسائل">{% include "_icon.html" with name="message" %}{% if unread_messages_count %}<span class="dot"></span>{% endif %}</a>
   <a href="{% url 'feed:notifications' %}" class="{% if nav == 'notifications' %}active{% endif %}" aria-label="الإشعارات">{% include "_icon.html" with name="bell" %}{% if unread_count %}<span class="dot"></span>{% endif %}</a>
   <button type="button" class="more-btn{% if nav == 'profile' or nav == 'bookmarks' or nav == 'splitter' or nav == 'explore' %} active{% endif %}" data-sheet-toggle aria-label="المزيد" aria-expanded="false">{% include "_icon.html" with name="menu" %}</button>

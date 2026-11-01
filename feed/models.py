@@ -87,7 +87,8 @@ class Notification(models.Model):
     FOLLOW = "follow"
     FRIEND_REQUEST = "friend_request"
     FRIEND_ACCEPT = "friend_accept"
-    KINDS = [(LIKE, "إعجاب"), (FOLLOW, "متابعة"), (FRIEND_REQUEST, "طلب صداقة"), (FRIEND_ACCEPT, "قبول صداقة")]
+    FRIEND_ADDED = "friend_added"
+    KINDS = [(LIKE, "إعجاب"), (FOLLOW, "متابعة"), (FRIEND_REQUEST, "طلب صداقة"), (FRIEND_ACCEPT, "قبول صداقة"), (FRIEND_ADDED, "إضافة صديق")]
 
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications")
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")

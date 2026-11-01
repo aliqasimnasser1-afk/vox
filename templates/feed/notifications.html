@@ -11,7 +11,7 @@
       {% include "_avatar.html" with profile=n.actor.profile cls="sm" %}
       <span class="notif-text">
         <strong>{{ n.actor.profile.display_name }}</strong>
-        {% if n.kind == 'like' %}أعجب بتغريدتك{% elif n.kind == 'follow' %}بدأ بمتابعتك{% elif n.kind == 'friend_request' %}أرسل لك طلب صداقة{% else %}قبل طلب صداقتك{% endif %}
+        {% if n.kind == 'like' %}أعجب بتغريدتك{% elif n.kind == 'follow' %}بدأ بمتابعتك{% elif n.kind == 'friend_added' %}أضافك إلى أصدقائه{% elif n.kind == 'friend_request' %}أرسل لك طلب صداقة{% else %}قبل طلب صداقتك{% endif %}
         <span class="muted">· {{ n.created_at|timesince }}</span>
         {% if n.post %}<span class="snippet">{{ n.post.content|truncatechars:90 }}</span>{% endif %}
       </span>
