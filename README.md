@@ -1,35 +1,47 @@
 # Vox
 
-A small X-style social app: sign up, post (280 chars), like, live timeline, profiles.
+A small X-style social app built with Django. Local development only.
 
-**Stack:** React + Vite (frontend, GitHub Pages) · Supabase (Postgres, Auth, Realtime, RLS).
+**Features:** sign up and log in with email, 280-character posts, likes (HTMX, no page reload),
+follow/unfollow with a "following" timeline, profiles, pagination, Django admin.
 
-## Run locally
+## Run
 
 ```bash
-npm install
-npm run dev
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
-## Database
+Open http://127.0.0.1:8000/
 
-`supabase/schema.sql` creates `profiles`, `posts`, `likes`, `follows`, their RLS policies,
-a trigger that creates a profile on sign-up, and enables realtime. It has already been applied
-to the project configured in `src/lib/supabase.js`. To use your own project, run the file in the
-Supabase SQL editor and replace the URL and publishable key in that file.
+Create an admin for `/admin/`:
 
-The publishable key is safe in the browser because RLS enforces access.
-**Never** put the secret / `service_role` key in this repo.
+```bash
+python manage.py createsuperuser
+```
 
-## Deploy to GitHub Pages
+Run the tests:
 
-1. Push to a GitHub repo, branch `main`.
-2. Settings → Pages → Source: **GitHub Actions**.
-3. The workflow in `.github/workflows/deploy.yml` builds and publishes on every push.
-4. In Supabase → Authentication → URL Configuration, add your Pages URL to **Site URL**
-   (needed for email confirmation links).
+```bash
+python manage.py test
+```
 
-## Roadmap
+## Layout
 
-`follows` table already exists. Next: follow button and "following" timeline, replies,
-hashtags and search, notifications, images (Supabase Storage), pagination.
+| Path | Purpose |
+|------|---------|
+| `accounts/` | email login backend, signup, profile model and edit |
+| `feed/` | posts, likes, follows, timeline and profile views |
+| `templates/`, `static/` | RTL Arabic UI, HTMX for likes and deletes |
+| `config/` | settings and root URLs |
+
+## Notes
+
+- `SECRET_KEY` in `config/settings.py` is a development placeholder. Set a real one and
+  `DEBUG = False` before any deployment.
+- The database is SQLite (`db.sqlite3`, git-ignored).
+- Ideas for later: replies, hashtags and search, notifications, images, realtime updates
+  (Django Channels).

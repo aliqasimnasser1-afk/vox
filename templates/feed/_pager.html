@@ -1,0 +1,7 @@
+{% if page.has_other_pages %}
+<nav class="pager" aria-label="الصفحات">
+  {% if page.has_previous %}<a class="btn ghost" href="?{% if tab %}tab={{ tab }}&{% endif %}page={{ page.previous_page_number }}">السابق</a>{% endif %}
+  <span class="muted">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a class="btn ghost" href="?{% if tab %}tab={{ tab }}&{% endif %}page={{ page.next_page_number }}">التالي</a>{% endif %}
+</nav>
+{% endif %}

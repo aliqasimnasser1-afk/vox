@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ owner.profile.display_name }} · Vox{% endblock %}
+{% block content %}
+<section class="profile">
+  <div class="avatar big" aria-hidden="true">{{ owner.profile.initial }}</div>
+  <h1>{{ owner.profile.display_name }}</h1>
+  <div class="muted" dir="ltr">@{{ owner.username }}</div>
+  {% if owner.profile.bio %}<p>{{ owner.profile.bio }}</p>{% endif %}
+  <div class="muted stats"><span>{{ followers_count }} متابِع</span> · <span>{{ following_count }} يتابع</span></div>
+  {% if owner == user %}
+    <a class="btn ghost" href="{% url 'accounts:profile_edit' %}">تعديل الملف</a>
+  {% else %}
+    <form method="post" action="{% url 'feed:follow' owner.username %}">{% csrf_token %}
+      <button class="btn {% if is_following %}ghost{% else %}primary{% endif %}">{% if is_following %}إلغاء المتابعة{% else %}متابعة{% endif %}</button>
+    </form>
+  {% endif %}
+</section>
+<section aria-label="التغريدات">
+  {% for post in page %}{% include "feed/_post.html" %}
+  {% empty %}<p class="muted pad">لم ينشر شيئاً بعد.</p>{% endfor %}
+</section>
+{% include "feed/_pager.html" %}
+{% endblock %}

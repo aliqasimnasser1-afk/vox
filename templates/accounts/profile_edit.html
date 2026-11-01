@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}تعديل الملف · Vox{% endblock %}
+{% block content %}
+<section class="pad-form">
+  <h1>تعديل الملف الشخصي</h1>
+  <form method="post" class="stack" novalidate>
+    {% csrf_token %}
+    {% include "_field.html" with field=form.display_name %}
+    {% include "_field.html" with field=form.bio %}
+    <div class="row">
+      <button class="btn primary">حفظ</button>
+      <a class="btn ghost" href="{% url 'feed:profile' user.username %}">إلغاء</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

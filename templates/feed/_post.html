@@ -1,0 +1,24 @@
+<article class="post" id="post-{{ post.id }}">
+  <div class="avatar" aria-hidden="true">{{ post.author.profile.initial }}</div>
+  <div class="post-body">
+    <div class="post-head">
+      <a href="{% url 'feed:profile' post.author.username %}" class="name">{{ post.author.profile.display_name }}</a>
+      <span class="muted handle" dir="ltr">@{{ post.author.username }}</span>
+      <span class="muted">· {{ post.created_at|timesince }}</span>
+    </div>
+    <p class="content">{{ post.content }}</p>
+    <div class="actions">
+      <button class="act{% if post.liked %} liked{% endif %}"
+              hx-post="{% url 'feed:like' post.id %}" hx-target="#post-{{ post.id }}" hx-swap="outerHTML"
+              aria-pressed="{% if post.liked %}true{% else %}false{% endif %}"
+              aria-label="{% if post.liked %}إلغاء الإعجاب{% else %}إعجاب{% endif %}">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="{% if post.liked %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-4.4-9.3-8.6C1 9 2.8 5 6.5 5c2 0 3.5 1.1 5.5 3.2C14 6.1 15.5 5 17.5 5 21.2 5 23 9 21.3 12.4 19 16.6 12 21 12 21z"/></svg>
+        <span>{{ post.like_count }}</span>
+      </button>
+      {% if post.author_id == request.user.id %}
+      <button class="act danger" hx-post="{% url 'feed:delete' post.id %}" hx-target="#post-{{ post.id }}" hx-swap="outerHTML"
+              hx-confirm="حذف هذه التغريدة؟">حذف</button>
+      {% endif %}
+    </div>
+  </div>
+</article>

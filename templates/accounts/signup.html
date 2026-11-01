@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}إنشاء حساب · Vox{% endblock %}
+{% block body %}
+<div class="auth"><div class="auth-card">
+  {% include "_logo.html" with size=40 %}
+  <h1>انضم إلى Vox</h1>
+  <p class="muted">أنشئ حسابك في أقل من دقيقة.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for e in form.non_field_errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
+    {% include "_field.html" with field=form.name %}
+    {% include "_field.html" with field=form.email %}
+    {% include "_field.html" with field=form.password %}
+    <button class="btn primary">إنشاء الحساب</button>
+  </form>
+  <p class="switch">عندك حساب؟ <a href="{% url 'accounts:login' %}">سجّل دخولك</a></p>
+</div></div>
+{% endblock %}

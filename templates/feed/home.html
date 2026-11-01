@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<form class="composer" method="post" action="{% url 'feed:post_create' %}">
+  {% csrf_token %}
+  <label class="sr" for="id_content">اكتب تغريدة</label>
+  {{ form.content }}
+  <div class="composer-bar">
+    <span class="count" id="count" aria-live="polite">280</span>
+    <button class="btn primary" id="send">نشر</button>
+  </div>
+</form>
+
+<div class="tabs" role="tablist">
+  <a href="?tab=all" role="tab" aria-selected="{% if tab == 'all' %}true{% else %}false{% endif %}">للجميع</a>
+  <a href="?tab=following" role="tab" aria-selected="{% if tab == 'following' %}true{% else %}false{% endif %}">المتابَعون</a>
+</div>
+
+<section aria-label="التغريدات">
+  {% for post in page %}{% include "feed/_post.html" %}
+  {% empty %}<p class="muted pad">{% if tab == 'following' %}تابع أشخاصاً لتظهر تغريداتهم هنا.{% else %}لا توجد تغريدات بعد. كن أول من ينشر!{% endif %}</p>
+  {% endfor %}
+</section>
+{% include "feed/_pager.html" %}
+
+<script>
+  (function () {
+    var t = document.getElementById('id_content'), c = document.getElementById('count'), b = document.getElementById('send');
+    function update() {
+      var left = 280 - t.value.length;
+      c.textContent = left;
+      c.className = 'count' + (left < 0 ? ' over' : left < 20 ? ' warn' : '');
+      b.disabled = left < 0 || t.value.trim().length === 0;
+    }
+    t.addEventListener('input', update); update();
+  })();
+</script>
+{% endblock %}
