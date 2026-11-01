@@ -22,5 +22,5 @@ def sidebar(request):
     return {
         "unread_count": Notification.objects.filter(recipient=user, is_read=False).count(),
         "suggestions": suggestions,
-        "trending": trending(6),
+        "trending": trending(10),
     }

@@ -159,3 +159,17 @@ class PrivateFavoritesTests(TestCase):
         self.assertNotContains(r, 'href="?tab=saved"')  # no tab link shown
         self.assertEqual(r.context["tab"], "posts")  # falls back, never leaks the list
         self.assertNotContains(r, "خاصة بك")
+
+
+class TrendingPanelTests(TestCase):
+    def test_side_panel_shows_up_to_ten_tags(self):
+        me = make_user("trend_u")
+        self.client.force_login(me)
+        for i in range(12):
+            for _ in range(i + 1):
+                self.client.post(reverse("feed:post_create"), {"content": f"post #topic{chr(97 + i)}x"})
+        r = self.client.get(reverse("feed:home"))
+        self.assertEqual(len(r.context["trending"]), 10)
+        names = [t.name for t in r.context["trending"]]
+        self.assertEqual(names[0], "topiclx")  # most used first
+        self.assertContains(r, 'class="card"')

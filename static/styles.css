@@ -840,3 +840,9 @@ input, textarea, select { padding: 12px 16px; border-radius: 14px; line-height: 
   .nav-title { margin-top: 12px; }
   .me { padding: 8px; }
 }
+
+/* Trending lives in the side panel on wide screens; the top strip only appears where that panel is hidden. */
+@media (min-width: 1060px) { .trend-strip { display: none; } }
+.rail { overflow-y: auto; scrollbar-width: none; }
+.rail::-webkit-scrollbar { display: none; }
+.card .trend-row.compact { padding-block: 8px; }
