@@ -52,3 +52,14 @@ python manage.py test
 - The database is SQLite (`db.sqlite3`) and uploaded avatars go to `media/`; both are git-ignored.
 - Ideas for later: replies, hashtags and search, images in posts, true realtime updates
   (Django Channels) instead of polling.
+
+## Deploy (Render)
+
+`render.yaml` is a Blueprint: a free Docker web service plus a free PostgreSQL database.
+Render sets `DATABASE_URL`, generates `SECRET_KEY`, and the container runs migrations on start.
+
+Live: https://vox-j4xf.onrender.com/
+
+Free-tier limits: the service sleeps after ~15 minutes idle (first request takes ~50 s), the free
+database expires after 30 days, and the disk is ephemeral, so uploaded avatars and split videos are
+lost on restart or redeploy.
