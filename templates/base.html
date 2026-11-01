@@ -16,6 +16,7 @@
   <script src="{% static 'media-ui.js' %}" defer></script>
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<div class="topbar" id="topbar" aria-hidden="true"></div>
 {% if messages %}
 <div class="toasts" aria-live="polite">
   {% for m in messages %}
@@ -129,6 +130,7 @@
   </aside>
 </div>
 
+<button type="button" class="to-top" id="to-top" aria-label="العودة للأعلى">{% include "_icon.html" with name="arrow-right" %}</button>
 <a href="{% url 'feed:post_create' %}" class="fab" aria-label="نشر تغريدة">{% include "_icon.html" with name="edit" %}</a>
 
 <nav class="bottom-nav" aria-label="القائمة السفلية">

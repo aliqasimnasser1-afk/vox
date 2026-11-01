@@ -145,3 +145,32 @@
     else if (e.target.closest('[data-sheet-close]')) sheetOpen(false);
   });
 })();
+
+/* Polish: top loading bar, header shadow on scroll, back-to-top button. */
+(function () {
+  var bar = document.getElementById('topbar'), pending = 0;
+  function start() { pending++; if (bar) bar.classList.add('on'); }
+  function stop() { pending = Math.max(0, pending - 1); if (!pending && bar) bar.classList.remove('on'); }
+  document.addEventListener('htmx:beforeRequest', start);
+  document.addEventListener('htmx:afterRequest', stop);
+  document.addEventListener('htmx:sendError', stop);
+  // Normal navigation: show the bar as soon as an internal link is followed.
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || a.target === '_blank' || a.hasAttribute('download') || a.dataset.lightbox) return;
+    var u = a.getAttribute('href');
+    if (u && u.charAt(0) === '/' && u.charAt(1) !== '/') { if (bar) bar.classList.add('on'); }
+  });
+  window.addEventListener('pageshow', function () { if (bar) bar.classList.remove('on'); pending = 0; });
+
+  var top = document.getElementById('to-top'), root = document.documentElement, ticking = false;
+  function onScroll() {
+    var y = window.scrollY || 0;
+    root.classList.toggle('scrolled', y > 8);
+    if (top) top.classList.toggle('show', y > 700);
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  onScroll();
+})();
