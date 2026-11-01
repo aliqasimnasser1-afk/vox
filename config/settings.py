@@ -9,7 +9,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Local development works with no environment variables. In production (Render) set
 # SECRET_KEY, DEBUG=0 and DATABASE_URL; RENDER_EXTERNAL_HOSTNAME is provided by Render.
 DEBUG = os.environ.get("DEBUG", "1") == "1"
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-key-change-me")
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
+if not SECRET_KEY:
+    # Hosts like PythonAnywhere: a key generated once on the server and kept in a git-ignored file,
+    # so every worker process shares it and nothing secret has to be pasted into a web form.
+    _key_file = Path(os.environ.get("SECRET_KEY_FILE", BASE_DIR / ".secret_key"))
+    if _key_file.is_file():
+        SECRET_KEY = _key_file.read_text(encoding="utf-8").strip()
+SECRET_KEY = SECRET_KEY or "dev-only-insecure-key-change-me"
 if not DEBUG and SECRET_KEY == "dev-only-insecure-key-change-me":
     if os.environ.get("ALLOW_EPHEMERAL_SECRET") == "1":
         # Hosts where no secret is configured (e.g. a Hugging Face Space): a random key per boot.
@@ -22,7 +29,7 @@ if not DEBUG and SECRET_KEY == "dev-only-insecure-key-change-me":
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 CSRF_TRUSTED_ORIGINS = []
 # Public hostnames injected by the hosting platforms we support.
-for _var in ("RENDER_EXTERNAL_HOSTNAME", "SPACE_HOST", "KOYEB_PUBLIC_DOMAIN"):
+for _var in ("RENDER_EXTERNAL_HOSTNAME", "SPACE_HOST", "KOYEB_PUBLIC_DOMAIN", "PYTHONANYWHERE_DOMAIN"):
     _host = os.environ.get(_var)
     if _host:
         ALLOWED_HOSTS.append(_host)
