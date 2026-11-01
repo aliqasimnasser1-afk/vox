@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="{% static 'styles.css' %}">
   <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
   <script src="{% static 'app.js' %}" defer></script>
+  <script src="{% static 'media-ui.js' %}" defer></script>
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 {% if messages %}
@@ -26,6 +27,31 @@
   {% endfor %}
 </div>
 {% endif %}
+
+
+<dialog id="confirm-dialog" class="dlg" aria-labelledby="cf-title" aria-describedby="cf-text">
+  <form method="dialog" class="dlg-card">
+    <span class="dlg-ico danger">{% include "_icon.html" with name="trash" %}</span>
+    <h2 id="cf-title">هل أنت متأكد؟</h2>
+    <p id="cf-text" class="muted"></p>
+    <div class="dlg-actions">
+      <button value="cancel" class="btn ghost" autofocus>إلغاء</button>
+      <button value="ok" class="btn danger" id="cf-ok">نعم، احذف</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="lightbox" class="lightbox" aria-label="معاينة الوسائط">
+  <div class="lb-bar">
+    <button type="button" class="lb-btn lb-close" aria-label="إغلاق">{% include "_icon.html" with name="x" %}</button>
+    <span class="lb-count" aria-live="polite"></span>
+    <a class="lb-btn lb-download" href="#" aria-label="تحميل" title="تحميل">{% include "_icon.html" with name="download" %}</a>
+  </div>
+  <button type="button" class="lb-nav lb-prev" aria-label="السابق">{% include "_icon.html" with name="chevron-right" %}</button>
+  <div class="lb-stage"></div>
+  <button type="button" class="lb-nav lb-next" aria-label="التالي">{% include "_icon.html" with name="chevron-left" %}</button>
+  <div class="lb-caption"></div>
+</dialog>
 
 {% block body %}
 <div class="shell">

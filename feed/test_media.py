@@ -99,3 +99,38 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 302)
         u.refresh_from_db()
         self.assertEqual(u.username, "fresh_name")
+
+
+class UiMarkupTests(TestCase):
+    """The site must use its own dialogs and lightbox, never the browser's confirm()."""
+
+    def setUp(self):
+        self.user = User.objects.create_user("ui1", "ui1@test.dev", PW, first_name="U")
+        self.client.force_login(self.user)
+
+    def test_no_native_confirm_anywhere(self):
+        import pathlib
+        root = pathlib.Path(__file__).resolve().parent.parent / "templates"
+        for f in root.rglob("*.html"):
+            self.assertNotIn("confirm(", f.read_text(encoding="utf-8"), str(f))
+
+    def test_dialogs_present_and_delete_is_styled(self):
+        Post.objects.create(author=self.user, content="x")
+        html = self.client.get("/").content.decode()
+        self.assertIn('id="confirm-dialog"', html)
+        self.assertIn('id="lightbox"', html)
+        self.assertIn("data-confirm-title", html)  # delete button carries the dialog text
+        self.assertIn("media-ui.js", html)
+
+    def test_media_posts_are_lightbox_enabled(self):
+        import shutil
+        from django.test import override_settings
+        tmp = tempfile.mkdtemp()
+        with override_settings(MEDIA_ROOT=tmp):
+            img = SimpleUploadedFile("a.png", png_bytes(), content_type="image/png")
+            self.client.post(reverse("feed:post_create"), {"content": "pic", "media": img})
+            self.client.post(reverse("feed:post_create"), {"content": "vid", "media": SimpleUploadedFile("c.mp4", b"\x00\x00\x00\x18ftypmp42" + b"0" * 64, content_type="video/mp4")})
+            html = self.client.get("/").content.decode()
+        shutil.rmtree(tmp, ignore_errors=True)
+        self.assertIn('data-lightbox="image"', html)
+        self.assertIn('data-lightbox="video"', html)

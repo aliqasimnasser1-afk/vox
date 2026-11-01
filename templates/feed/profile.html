@@ -16,7 +16,7 @@
       {% else %}
         {% if friend_status == 'friends' %}
           <a class="btn primary" href="{% url 'social:thread' owner.username %}">{% include "_icon.html" with name="message" %} رسالة</a>
-          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'unfriend' %}" onsubmit="return confirm('إزالة هذا الصديق؟')">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn ghost" title="أصدقاء">{% include "_icon.html" with name="user-check" %} صديق</button></form>
+          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'unfriend' %}" data-confirm="لن تتمكنا من تبادل الرسائل الخاصة بعد إزالته من أصدقائك." data-confirm-title="إزالة صديق" data-confirm-ok="نعم، أزِله">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn ghost" title="أصدقاء">{% include "_icon.html" with name="user-check" %} صديق</button></form>
         {% elif friend_status == 'sent' %}
           <form method="post" action="{% url 'social:friend_respond' friendship.pk 'cancel' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn ghost">{% include "_icon.html" with name="clock" %} إلغاء الطلب</button></form>
         {% elif friend_status == 'received' %}

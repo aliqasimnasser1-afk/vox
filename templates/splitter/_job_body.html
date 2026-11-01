@@ -38,7 +38,7 @@
   {% endif %}
 
   {% if not job.active %}
-  <form method="post" action="{% url 'splitter:delete' job.pk %}" class="danger-zone" onsubmit="return confirm('حذف الفيديو وكل أجزائه؟')">
+  <form method="post" action="{% url 'splitter:delete' job.pk %}" class="danger-zone" data-confirm="سيتم حذف الفيديو الأصلي وكل أجزائه نهائياً، ولا يمكن التراجع." data-confirm-title="حذف هذه العملية" data-confirm-ok="نعم، احذف">
     {% csrf_token %}<button class="btn ghost danger-btn">{% include "_icon.html" with name="trash" %} حذف هذه العملية</button>
   </form>
   {% endif %}
