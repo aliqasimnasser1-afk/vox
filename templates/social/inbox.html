@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}الرسائل · Vox{% endblock %}
+{% block content %}
+<header class="page-head"><h1>الرسائل</h1><a class="btn ghost small head-act" href="{% url 'social:friends' %}?tab=add">{% include "_icon.html" with name="user-plus" %} صديق جديد</a></header>
+<section aria-label="المحادثات">
+  {% for r in rows %}
+  <a class="conv{% if r.unread %} unread{% endif %}" href="{% url 'social:thread' r.user.username %}">
+    {% include "_avatar.html" with profile=r.user.profile cls="" %}
+    <span class="conv-main">
+      <span class="conv-top"><strong>{{ r.user.profile.display_name }}</strong><span class="muted small-txt" dir="ltr">@{{ r.user.username }}</span>
+        {% if r.last %}<span class="muted small-txt conv-time">{{ r.last.created_at|timesince }}</span>{% endif %}</span>
+      <span class="conv-last muted">{% if r.last %}{% if r.last.sender_id == user.id %}أنت: {% endif %}{{ r.last.body|truncatechars:60 }}{% else %}ابدأ المحادثة{% endif %}</span>
+    </span>
+    {% if r.unread %}<span class="badge">{{ r.unread }}</span>{% endif %}
+  </a>
+  {% empty %}
+  <div class="empty">
+    {% include "_icon.html" with name="message" %}
+    <h2>لا توجد محادثات</h2>
+    <p>الرسائل الخاصة بين الأصدقاء فقط. أضف صديقاً لتبدأ.</p>
+    <a class="btn primary" href="{% url 'social:friends' %}?tab=add">{% include "_icon.html" with name="user-plus" %} إضافة صديق</a>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

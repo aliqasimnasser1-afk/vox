@@ -14,8 +14,18 @@
       {% if owner == user %}
         <a class="btn ghost" href="{% url 'accounts:profile_edit' %}">{% include "_icon.html" with name="edit" %} تعديل الملف</a>
       {% else %}
+        {% if friend_status == 'friends' %}
+          <a class="btn primary" href="{% url 'social:thread' owner.username %}">{% include "_icon.html" with name="message" %} رسالة</a>
+          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'unfriend' %}" onsubmit="return confirm('إزالة هذا الصديق؟')">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn ghost" title="أصدقاء">{% include "_icon.html" with name="user-check" %} صديق</button></form>
+        {% elif friend_status == 'sent' %}
+          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'cancel' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn ghost">{% include "_icon.html" with name="clock" %} إلغاء الطلب</button></form>
+        {% elif friend_status == 'received' %}
+          <form method="post" action="{% url 'social:friend_respond' friendship.pk 'accept' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn primary">{% include "_icon.html" with name="check" %} قبول الصداقة</button></form>
+        {% else %}
+          <form method="post" action="{% url 'social:friend_request' owner.username %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn primary">{% include "_icon.html" with name="user-plus" %} إضافة صديق</button></form>
+        {% endif %}
         <form method="post" action="{% url 'feed:follow' owner.username %}">{% csrf_token %}
-          <button class="btn {% if is_following %}ghost{% else %}primary{% endif %}">{% if is_following %}إلغاء المتابعة{% else %}متابعة{% endif %}</button>
+          <button class="btn ghost">{% if is_following %}إلغاء المتابعة{% else %}متابعة{% endif %}</button>
         </form>
       {% endif %}
     </div>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ other.profile.display_name }} · الرسائل{% endblock %}
+{% block content %}
+<header class="page-head">
+  <a href="{% url 'social:inbox' %}" class="back" aria-label="رجوع">{% include "_icon.html" with name="arrow-right" %}</a>
+  <a href="{% url 'feed:profile' other.username %}" class="who-link head-user">
+    {% include "_avatar.html" with profile=other.profile cls="sm" %}
+    <span class="me-text"><strong>{{ other.profile.display_name }}</strong><span class="muted" dir="ltr">@{{ other.username }}</span></span>
+  </a>
+</header>
+
+<div class="chat" id="chat">
+  <div class="msgs" id="msgs">
+    {% for m in msgs %}{% include "social/_bubble.html" %}
+    {% empty %}<p class="muted pad small-pad" id="chat-empty">لا رسائل بعد. قل مرحباً.</p>{% endfor %}
+    <div id="poller" hx-get="{% url 'social:poll' other.username %}?after={{ last_id }}" hx-trigger="every 3s" hx-swap="outerHTML"></div>
+  </div>
+  <form class="chat-form" method="post" action="{% url 'social:send' other.username %}"
+        hx-post="{% url 'social:send' other.username %}" hx-target="#poller" hx-swap="beforebegin" data-reset-on-success>
+    {% csrf_token %}
+    <label class="sr" for="body">اكتب رسالة</label>
+    <textarea id="body" name="body" rows="1" maxlength="1000" placeholder="اكتب رسالة…" required autocomplete="off"></textarea>
+    <button class="btn primary send-btn" aria-label="إرسال">{% include "_icon.html" with name="send" %}</button>
+  </form>
+</div>
+{% endblock %}

@@ -11,11 +11,11 @@
     <div class="notice-box error" role="alert">{% include "_icon.html" with name="alert" %}<span>أداة ffmpeg غير مثبّتة على الجهاز، لذلك لا يمكن تقسيم الفيديو.</span></div>
   {% endif %}
 
-  <form method="post" enctype="multipart/form-data" class="stack" id="split-form" novalidate>
+  <form method="post" enctype="multipart/form-data" class="stack" id="split-form" novalidate data-upload>
     {% csrf_token %}
     {% for e in form.non_field_errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
     <label class="dropzone" for="{{ form.video.id_for_label }}">
-      <span class="dz-ico">{% include "_icon.html" with name="upload" %}</span>
+      <span class="dz-ico">{% include "_icon.html" with name="cloud-upload" %}</span>
       <strong>اسحب الفيديو هنا أو اضغط للاختيار</strong>
       <span class="muted" data-file-name>mp4 · mov · mkv · webm · avi</span>
       {{ form.video }}
@@ -25,8 +25,19 @@
       <div class="grow">{% include "_field.html" with field=form.amount %}</div>
       <div>{% include "_field.html" with field=form.unit %}</div>
     </div>
-    <p class="muted small-txt">الصيغ: mp4, mov, mkv, webm, avi. الحد الأقصى 500 ميجابايت و300 جزء.</p>
-    <button class="btn primary" id="split-btn" {% if not available %}disabled{% endif %}>{% include "_icon.html" with name="scissors" %} قسّم الفيديو</button>
+    <fieldset class="modes">
+      <legend>طريقة التقسيم</legend>
+      <label class="mode-card"><input type="radio" name="mode" value="fast" checked>
+        <span class="mode-ico">{% include "_icon.html" with name="zap" %}</span>
+        <span class="mode-text"><strong>سريع جداً</strong><span class="muted small-txt">بدون إعادة ترميز: ثوانٍ حتى للفيديو الطويل. تختلف أطوال الأجزاء قليلاً لأن القص يتبع الإطارات المفتاحية.</span></span>
+      </label>
+      <label class="mode-card"><input type="radio" name="mode" value="precise">
+        <span class="mode-ico">{% include "_icon.html" with name="target" %}</span>
+        <span class="mode-text"><strong>دقيق</strong><span class="muted small-txt">أطوال متساوية بالضبط. أبطأ لأنه يعيد الترميز، ويستخدم كل أنوية المعالج معاً.</span></span>
+      </label>
+    </fieldset>
+    <p class="muted small-txt">الصيغ: mp4, mov, mkv, webm, avi. الحد الأقصى 2 جيجابايت و300 جزء.</p>
+    <button class="btn primary" id="split-btn" {% if not available %}disabled{% endif %}>{% include "_icon.html" with name="split" %} قسّم الفيديو</button>
   </form>
 </section>
 
@@ -35,7 +46,7 @@
 <section aria-label="العمليات السابقة">
   {% for j in jobs %}
   <a class="job-row" href="{% url 'splitter:detail' j.pk %}">
-    <span class="job-ico">{% include "_icon.html" with name="film" %}</span>
+    <span class="job-ico">{% include "_icon.html" with name="file-video" %}</span>
     <span class="job-main">
       <strong>{{ j.title }}</strong>
       <span class="muted small-txt">{{ j.duration|clock }} · كل {{ j.segment_seconds|human_len }} · {{ j.created_at|timesince }}</span>
@@ -46,10 +57,5 @@
 </section>
 {% endif %}
 
-<script>
-  document.getElementById('split-form').addEventListener('submit', function () {
-    var b = document.getElementById('split-btn');
-    b.disabled = true; b.textContent = 'جارٍ الرفع…';
-  });
-</script>
+
 {% endblock %}

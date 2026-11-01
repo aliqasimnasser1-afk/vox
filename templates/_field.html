@@ -7,5 +7,6 @@
     </button>
   </div>
   {% else %}{{ field }}{% endif %}
+  {% if field.help_text and not field.errors %}<div class="hint">{{ field.help_text }}</div>{% endif %}
   {% for e in field.errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
 </div>

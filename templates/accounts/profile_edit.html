@@ -3,7 +3,7 @@
 {% block content %}
 <header class="page-head"><a href="{% url 'feed:profile' user.username %}" class="back" aria-label="رجوع">{% include "_icon.html" with name="arrow-right" %}</a><h1>تعديل الملف الشخصي</h1></header>
 <section class="pad-form">
-  <form method="post" enctype="multipart/form-data" class="stack" novalidate>
+  <form method="post" enctype="multipart/form-data" class="stack" novalidate data-upload>
     {% csrf_token %}
     <div class="avatar-edit">
       {% include "_avatar.html" with profile=user.profile cls="xl" %}
@@ -12,7 +12,9 @@
         {% if user.profile.avatar %}<label class="check">{{ form.remove_avatar }} {{ form.remove_avatar.label }}</label>{% endif %}
       </div>
     </div>
+    <div class="notice-box info">{% include "_icon.html" with name="shield" %}<span>بريدك الإلكتروني خاص ولا يظهر لأحد. يظهر للآخرين اسم المستخدم والصورة فقط.</span></div>
     {% include "_field.html" with field=form.display_name %}
+    {% include "_field.html" with field=form.username %}
     {% include "_field.html" with field=form.bio %}
     {% include "_field.html" with field=form.location %}
     {% include "_field.html" with field=form.website %}

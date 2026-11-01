@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}الأصدقاء · Vox{% endblock %}
+{% block content %}
+<header class="page-head"><h1>الأصدقاء</h1></header>
+
+<div class="tabs tabs-3" role="tablist">
+  <a href="?tab=friends" role="tab" aria-selected="{% if tab == 'friends' %}true{% else %}false{% endif %}">أصدقائي <span class="count-chip">{{ friends|length }}</span></a>
+  <a href="?tab=requests" role="tab" aria-selected="{% if tab == 'requests' %}true{% else %}false{% endif %}">الطلبات{% if received %} <span class="count-chip hot">{{ received|length }}</span>{% endif %}</a>
+  <a href="?tab=add" role="tab" aria-selected="{% if tab == 'add' %}true{% else %}false{% endif %}">إضافة صديق</a>
+</div>
+
+{% if tab == 'add' %}
+<section class="pad-form">
+  <h2 class="h2">أضف صديقاً باسم المستخدم</h2>
+  <p class="muted lead">اكتب اسم المستخدم (اليوزر) فقط. لا نعرض بريد أحد.</p>
+  <form method="post" action="{% url 'social:friend_add' %}" class="add-friend">
+    {% csrf_token %}
+    <span class="at">@</span>
+    <input name="username" dir="ltr" placeholder="username" required maxlength="20" autocomplete="off" autocapitalize="off" aria-label="اسم المستخدم">
+    <button class="btn primary">{% include "_icon.html" with name="user-plus" %} إرسال الطلب</button>
+  </form>
+</section>
+
+{% elif tab == 'requests' %}
+<h2 class="section-title">طلبات واردة</h2>
+{% for r in received %}
+  <div class="who row-item">
+    <a href="{% url 'feed:profile' r.requester.username %}" class="who-link">
+      {% include "_avatar.html" with profile=r.requester.profile cls="" %}
+      <span class="me-text"><strong>{{ r.requester.profile.display_name }}</strong><span class="muted" dir="ltr">@{{ r.requester.username }}</span></span>
+    </a>
+    <div class="row">
+      <form method="post" action="{% url 'social:friend_respond' r.pk 'accept' %}">{% csrf_token %}<button class="btn primary small">{% include "_icon.html" with name="check" %} قبول</button></form>
+      <form method="post" action="{% url 'social:friend_respond' r.pk 'decline' %}">{% csrf_token %}<button class="btn ghost small">رفض</button></form>
+    </div>
+  </div>
+{% empty %}<p class="muted pad small-pad">لا توجد طلبات واردة.</p>{% endfor %}
+
+<h2 class="section-title">طلبات أرسلتَها</h2>
+{% for r in sent %}
+  <div class="who row-item">
+    <a href="{% url 'feed:profile' r.addressee.username %}" class="who-link">
+      {% include "_avatar.html" with profile=r.addressee.profile cls="" %}
+      <span class="me-text"><strong>{{ r.addressee.profile.display_name }}</strong><span class="muted" dir="ltr">@{{ r.addressee.username }}</span></span>
+    </a>
+    <form method="post" action="{% url 'social:friend_respond' r.pk 'cancel' %}">{% csrf_token %}<button class="btn ghost small">إلغاء الطلب</button></form>
+  </div>
+{% empty %}<p class="muted pad small-pad">لا توجد طلبات معلّقة.</p>{% endfor %}
+
+{% else %}
+{% for u in friends %}
+  <div class="who row-item">
+    <a href="{% url 'feed:profile' u.username %}" class="who-link">
+      {% include "_avatar.html" with profile=u.profile cls="" %}
+      <span class="me-text"><strong>{{ u.profile.display_name }}</strong><span class="muted" dir="ltr">@{{ u.username }}</span></span>
+    </a>
+    <a class="btn ghost small" href="{% url 'social:thread' u.username %}">{% include "_icon.html" with name="message" %} رسالة</a>
+  </div>
+{% empty %}
+  <div class="empty">
+    {% include "_icon.html" with name="users" %}
+    <h2>لا يوجد أصدقاء بعد</h2>
+    <p>أضف أصدقاءك بأسماء المستخدمين، وتراسلوا بخصوصية.</p>
+    <a class="btn primary" href="?tab=add">{% include "_icon.html" with name="user-plus" %} إضافة صديق</a>
+  </div>
+{% endfor %}
+{% endif %}
+{% endblock %}

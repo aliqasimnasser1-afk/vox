@@ -5,6 +5,8 @@ from pathlib import Path
 from django.conf import settings
 from django.db import models
 
+from core.storage import local_storage
+
 
 def source_path(instance, filename):
     ext = Path(filename).suffix.lower()
@@ -13,12 +15,15 @@ def source_path(instance, filename):
 
 class VideoJob(models.Model):
     PENDING, PROCESSING, DONE, FAILED = "pending", "processing", "done", "failed"
+    FAST, PRECISE = "fast", "precise"
+    MODES = [(FAST, "سريع"), (PRECISE, "دقيق")]
     STATUSES = [(PENDING, "في الانتظار"), (PROCESSING, "قيد التقسيم"), (DONE, "جاهز"), (FAILED, "فشل")]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="video_jobs")
     title = models.CharField(max_length=200)
-    source = models.FileField(upload_to=source_path)
+    source = models.FileField(upload_to=source_path, storage=local_storage)
     segment_seconds = models.PositiveIntegerField()
+    mode = models.CharField(max_length=8, choices=MODES, default=FAST)
     duration = models.FloatField(default=0)
     status = models.CharField(max_length=12, choices=STATUSES, default=PENDING)
     progress = models.PositiveSmallIntegerField(default=0)
@@ -48,7 +53,7 @@ class VideoJob(models.Model):
 class VideoPart(models.Model):
     job = models.ForeignKey(VideoJob, on_delete=models.CASCADE, related_name="parts")
     index = models.PositiveIntegerField()
-    file = models.FileField(upload_to="splitter/parts/")
+    file = models.FileField(upload_to="splitter/parts/", storage=local_storage)
     start = models.FloatField()
     duration = models.FloatField()
 

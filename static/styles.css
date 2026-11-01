@@ -179,7 +179,10 @@ input[type=file] { padding: 8px; }
 .nav a:hover .ico { transform: scale(1.08); }
 .nav a.active { background: var(--surface); color: var(--fg); font-weight: 700; box-shadow: var(--shadow-sm); }
 .nav a.active .ico, .bottom-nav a.active .ico { fill: color-mix(in srgb, var(--accent) 28%, transparent); color: var(--accent); stroke-width: 2.1; }
-.nav a > :last-child:not(:first-child) { margin-inline-start: auto; }
+.nav a > .badge, .nav a > [hx-get] { margin-inline-start: auto; }
+.nav-title { margin: 14px 16px 4px; font-size: 12px; font-weight: 700; letter-spacing: .02em; color: var(--muted); opacity: .8; }
+.nav-title:first-child { margin-top: 2px; }
+.nav-label { flex: 1; text-align: start; }
 .badge { background: var(--like); color: #fff; font-size: 12px; font-weight: 700; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center; animation: pop .35s ease; }
 .compose-btn { margin-top: 4px; }
 .me { margin-top: auto; display: flex; align-items: center; gap: 2px; padding: 8px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); }
@@ -190,7 +193,9 @@ input[type=file] { padding: 8px; }
 .me-text .muted { font-size: 13px; }
 @media (min-width: 760px) and (max-width: 1059px) {
   .sidebar { align-items: center; padding-inline: 8px; }
-  .brand span, .nav a span:not(.badge), .me-text, .compose-btn span, .me form, .me [data-theme-toggle] { display: none; }
+  .brand span, .nav-label, .nav-title, .me-text, .compose-btn span, .me form, .me [data-theme-toggle] { display: none; }
+  .nav a { position: relative; }
+  .nav a > .badge, .nav a > [hx-get] { position: absolute; top: 4px; inset-inline-start: 4px; margin: 0; min-width: 18px; height: 18px; font-size: 11px; }
   .nav a { padding: 13px; }
   .compose-btn { width: 48px; height: 48px; padding: 0; min-height: 0; border-radius: 50%; }
   .me { padding: 4px; background: none; border: 0; }
@@ -336,7 +341,7 @@ input[type=file] { padding: 8px; }
 .pill.done { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
 .pill.failed { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 50%, transparent); }
 .pill.processing, .pill.pending { color: var(--save); background: var(--save-soft); border-color: transparent; }
-.job-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px; }
+.job-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; padding: 16px; }
 .stat { display: grid; gap: 2px; font-size: 14px; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); }
 .stat strong { font-size: 19px; }
 .progress-wrap { padding: 20px 16px 28px; }
@@ -374,3 +379,92 @@ input[type=file] { padding: 8px; }
 
 /* scrollbars */
 * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+/* ───────── Hints, chips, info boxes ───────── */
+.hint { color: var(--muted); font-size: 13px; }
+.h2 { margin: 0 0 4px; font-size: 20px; }
+.small-pad { padding: 18px 16px; }
+.notice-box.info { color: var(--fg); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); background: var(--accent-soft); }
+.notice-box.info .ico { color: var(--accent); }
+.count-chip { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; margin-inline-start: 4px; border-radius: 999px; font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); }
+.count-chip.hot { background: var(--like); border-color: transparent; color: #fff; }
+.tabs-3 { grid-template-columns: repeat(3, 1fr); }
+.head-act { margin-inline-start: auto; }
+
+/* ───────── Friends ───────── */
+.add-friend { display: flex; gap: 8px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+.add-friend input { flex: 1; min-width: 160px; }
+.add-friend .at { color: var(--muted); font-size: 20px; margin-inline-end: -4px; }
+
+/* ───────── Messages ───────── */
+.conv { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); text-decoration: none; transition: background-color .15s; }
+.conv:hover { background: var(--surface-2); }
+.conv.unread { background: var(--unread); }
+.conv-main { display: grid; min-width: 0; flex: 1; }
+.conv-top { display: flex; align-items: baseline; gap: 8px; }
+.conv-time { margin-inline-start: auto; }
+.conv-last { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+.conv.unread .conv-last { color: var(--fg); font-weight: 600; }
+.head-user { text-decoration: none; }
+.chat { display: flex; flex-direction: column; min-height: calc(100vh - 58px); }
+.msgs { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 16px 16px 12px; }
+.bubble { max-width: 78%; padding: 8px 14px 6px; border-radius: 18px; animation: rise .2s ease both; overflow-wrap: anywhere; }
+.bubble p { margin: 0; white-space: pre-wrap; line-height: 1.6; }
+.bubble time { display: block; opacity: .65; margin-top: 2px; }
+.bubble.mine { align-self: flex-start; background: var(--grad); color: var(--on-accent); border-end-start-radius: 6px; }
+.bubble.theirs { align-self: flex-end; background: var(--surface-2); border: 1px solid var(--border); border-end-end-radius: 6px; }
+.chat-form { position: sticky; bottom: 58px; display: flex; gap: 8px; align-items: flex-end; padding: 10px 12px; background: var(--glass); backdrop-filter: blur(14px); border-top: 1px solid var(--border); }
+@media (min-width: 760px) { .chat-form { bottom: 0; } }
+.chat-form textarea { min-height: 46px; max-height: 140px; resize: none; border-radius: 22px; padding: 11px 16px; }
+.send-btn { flex: none; width: 46px; height: 46px; padding: 0; border-radius: 50%; }
+.send-btn .ico { width: 20px; height: 20px; transform: scaleX(-1); }
+
+/* ───────── Post media & composer attach ───────── */
+.post-media { display: block; width: 100%; max-height: 540px; object-fit: cover; border-radius: 16px; border: 1px solid var(--border); background: #000; margin: 4px 0 10px; }
+video.post-media { object-fit: contain; }
+.media-link { display: block; }
+.composer-tools { display: flex; align-items: center; gap: 12px; }
+.tool-btn { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: var(--accent); cursor: pointer; transition: background-color .2s; }
+.tool-btn:hover { background: var(--accent-soft); }
+.composer #id_media { position: absolute; width: 1px; height: 1px; opacity: 0; min-height: 0; padding: 0; pointer-events: none; }
+.media-preview { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); max-height: 360px; }
+.media-preview img, .media-preview video { display: block; width: 100%; max-height: 360px; object-fit: cover; background: #000; }
+.preview-x { position: absolute; top: 8px; inset-inline-start: 8px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(0,0,0,.65); color: #fff; cursor: pointer; display: grid; place-items: center; }
+.preview-x .ico { width: 18px; height: 18px; }
+
+/* ───────── Upload overlay ───────── */
+.upload-overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px; background: rgba(3, 7, 18, .6); backdrop-filter: blur(6px); animation: fade .2s ease both; }
+.upload-card { width: 100%; max-width: 420px; padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-md); display: grid; gap: 14px; }
+.upload-title { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+.upload-pct { margin-inline-start: auto; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent); }
+.upload-note { margin: 0; text-align: center; }
+.spin { width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--accent); animation: spin .8s linear infinite; flex: none; }
+.progress-text { display: flex; align-items: center; gap: 8px; }
+.progress-text .ico { width: 18px; height: 18px; animation: spin 1.4s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ───────── Splitter modes ───────── */
+.modes { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
+.modes legend { font-weight: 600; font-size: 14.5px; margin-bottom: 8px; padding: 0; }
+.mode-card { position: relative; display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 1.5px solid var(--border); border-radius: 16px; cursor: pointer; background: var(--surface); transition: border-color .2s, background-color .2s, box-shadow .2s; }
+.mode-card:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); }
+.mode-card input { position: absolute; opacity: 0; pointer-events: none; }
+.mode-card:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+.mode-card:has(input:focus-visible) { outline: 2px solid var(--ring); outline-offset: 2px; }
+.mode-ico { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--surface-2); color: var(--accent); flex: none; }
+.mode-card:has(input:checked) .mode-ico { background: var(--grad); color: var(--on-accent); }
+.mode-text { display: grid; gap: 2px; }
+
+/* ───────── Mobile "more" sheet ───────── */
+.bottom-nav .more-btn { background: none; border: 0; display: grid; place-items: center; min-height: 58px; color: var(--muted); cursor: pointer; }
+.bottom-nav .more-btn.active { color: var(--accent); }
+.sheet-backdrop { position: fixed; inset: 0; z-index: 11; background: rgba(3, 7, 18, .5); }
+.sheet { position: fixed; inset-inline: 12px; bottom: 70px; z-index: 12; display: grid; padding: 8px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-md); animation: rise .2s ease both; }
+.sheet a, .sheet button { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 0; background: none; border-radius: 12px; text-decoration: none; font-size: 16px; cursor: pointer; width: 100%; text-align: start; }
+.sheet a:hover, .sheet button:hover { background: var(--surface-2); }
+.sheet form { margin: 0; }
+.sheet[hidden], .sheet-backdrop[hidden] { display: none; }
+@media (min-width: 760px) { .sheet, .sheet-backdrop { display: none !important; } }
+
+/* settle bottom nav for 5 slots with a button */
+.bottom-nav a .dot { top: 12px; }

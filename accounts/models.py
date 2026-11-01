@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
@@ -5,8 +7,9 @@ from django.dispatch import receiver
 
 
 def avatar_path(instance, filename):
+    # Random name: a new upload never collides with (or is cached as) the previous avatar.
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "jpg"
-    return f"avatars/{instance.user_id}.{ext}"
+    return f"avatars/{instance.user_id}-{uuid.uuid4().hex[:10]}.{ext}"
 
 
 class Profile(models.Model):

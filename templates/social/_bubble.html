@@ -1,0 +1,4 @@
+<div class="bubble {% if m.sender_id == request.user.id %}mine{% else %}theirs{% endif %}" data-id="{{ m.id }}">
+  <p>{{ m.body }}</p>
+  <time class="small-txt">{{ m.created_at|date:"H:i" }}</time>
+</div>

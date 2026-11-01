@@ -32,14 +32,22 @@
   <aside class="sidebar">
     <a href="{% url 'feed:home' %}" class="brand" aria-label="الرئيسية">{% include "_logo.html" with size=38 %}<span>Vox</span></a>
     <nav class="nav" aria-label="القائمة الرئيسية">
-      <a href="{% url 'feed:home' %}" class="{% if nav == 'home' %}active{% endif %}" {% if nav == 'home' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="home" %}<span>الرئيسية</span></a>
+      <p class="nav-title">التصفح</p>
+      <a href="{% url 'feed:home' %}" class="{% if nav == 'home' %}active{% endif %}" {% if nav == 'home' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="home" %}<span class="nav-label">الرئيسية</span></a>
+      <a href="{% url 'feed:bookmarks' %}" class="{% if nav == 'bookmarks' %}active{% endif %}" {% if nav == 'bookmarks' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="bookmark" %}<span class="nav-label">المفضلة</span></a>
+
+      <p class="nav-title">التواصل</p>
+      <a href="{% url 'social:friends' %}" class="{% if nav == 'friends' %}active{% endif %}" {% if nav == 'friends' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="users" %}<span class="nav-label">الأصدقاء</span>{% if friend_requests_count %}<span class="badge">{{ friend_requests_count }}</span>{% endif %}</a>
+      <a href="{% url 'social:inbox' %}" class="{% if nav == 'messages' %}active{% endif %}" {% if nav == 'messages' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="message" %}<span class="nav-label">الرسائل</span>{% if unread_messages_count %}<span class="badge">{{ unread_messages_count }}</span>{% endif %}</a>
       <a href="{% url 'feed:notifications' %}" class="{% if nav == 'notifications' %}active{% endif %}" {% if nav == 'notifications' %}aria-current="page"{% endif %}>
-        {% include "_icon.html" with name="bell" %}<span>الإشعارات</span>
-        {% include "feed/_badge.html" %}
+        {% include "_icon.html" with name="bell" %}<span class="nav-label">الإشعارات</span>{% include "feed/_badge.html" %}
       </a>
-      <a href="{% url 'feed:bookmarks' %}" class="{% if nav == 'bookmarks' %}active{% endif %}" {% if nav == 'bookmarks' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="bookmark" %}<span>المفضلة</span></a>
-      <a href="{% url 'splitter:index' %}" class="{% if nav == 'splitter' %}active{% endif %}" {% if nav == 'splitter' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="scissors" %}<span>تقسيم الفيديو</span></a>
-      <a href="{% url 'feed:profile' user.username %}" class="{% if nav == 'profile' %}active{% endif %}" {% if nav == 'profile' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="user" %}<span>الملف الشخصي</span></a>
+
+      <p class="nav-title">الأدوات</p>
+      <a href="{% url 'splitter:index' %}" class="{% if nav == 'splitter' %}active{% endif %}" {% if nav == 'splitter' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="split" %}<span class="nav-label">تقسيم الفيديو</span></a>
+
+      <p class="nav-title">حسابي</p>
+      <a href="{% url 'feed:profile' user.username %}" class="{% if nav == 'profile' %}active{% endif %}" {% if nav == 'profile' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="user" %}<span class="nav-label">الملف الشخصي</span></a>
     </nav>
     <a href="{% url 'feed:home' %}#id_content" class="btn primary block compose-btn">{% include "_icon.html" with name="edit" %}<span>نشر تغريدة</span></a>
     <div class="me">
@@ -84,11 +92,19 @@
 
 <nav class="bottom-nav" aria-label="القائمة السفلية">
   <a href="{% url 'feed:home' %}" class="{% if nav == 'home' %}active{% endif %}" aria-label="الرئيسية">{% include "_icon.html" with name="home" %}</a>
+  <a href="{% url 'social:friends' %}" class="{% if nav == 'friends' %}active{% endif %}" aria-label="الأصدقاء">{% include "_icon.html" with name="users" %}{% if friend_requests_count %}<span class="dot"></span>{% endif %}</a>
+  <a href="{% url 'social:inbox' %}" class="{% if nav == 'messages' %}active{% endif %}" aria-label="الرسائل">{% include "_icon.html" with name="message" %}{% if unread_messages_count %}<span class="dot"></span>{% endif %}</a>
   <a href="{% url 'feed:notifications' %}" class="{% if nav == 'notifications' %}active{% endif %}" aria-label="الإشعارات">{% include "_icon.html" with name="bell" %}{% if unread_count %}<span class="dot"></span>{% endif %}</a>
-  <a href="{% url 'feed:bookmarks' %}" class="{% if nav == 'bookmarks' %}active{% endif %}" aria-label="المفضلة">{% include "_icon.html" with name="bookmark" %}</a>
-  <a href="{% url 'splitter:index' %}" class="{% if nav == 'splitter' %}active{% endif %}" aria-label="تقسيم الفيديو">{% include "_icon.html" with name="scissors" %}</a>
-  <a href="{% url 'feed:profile' user.username %}" class="{% if nav == 'profile' %}active{% endif %}" aria-label="الملف الشخصي">{% include "_icon.html" with name="user" %}</a>
+  <button type="button" class="more-btn{% if nav == 'profile' or nav == 'bookmarks' or nav == 'splitter' %} active{% endif %}" data-sheet-toggle aria-label="المزيد" aria-expanded="false">{% include "_icon.html" with name="menu" %}</button>
 </nav>
+<div class="sheet-backdrop" data-sheet-close hidden></div>
+<div class="sheet" id="more-sheet" role="dialog" aria-label="المزيد" hidden>
+  <a href="{% url 'feed:profile' user.username %}">{% include "_icon.html" with name="user" %}<span>الملف الشخصي</span></a>
+  <a href="{% url 'feed:bookmarks' %}">{% include "_icon.html" with name="bookmark" %}<span>المفضلة</span></a>
+  <a href="{% url 'splitter:index' %}">{% include "_icon.html" with name="split" %}<span>تقسيم الفيديو</span></a>
+  <button type="button" data-theme-toggle><span class="when-dark">{% include "_icon.html" with name="sun" %}</span><span class="when-light">{% include "_icon.html" with name="moon" %}</span><span>تبديل المظهر</span></button>
+  <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button>{% include "_icon.html" with name="logout" %}<span>تسجيل الخروج</span></button></form>
+</div>
 {% endblock %}
 </body>
 </html>

@@ -14,16 +14,17 @@ def make_user(name, email=None):
 
 class AuthTests(TestCase):
     def test_signup_logs_in_and_creates_profile(self):
-        r = self.client.post(reverse("accounts:signup"), {"name": "Ali", "email": "Ali@Test.dev", "password": PW})
+        r = self.client.post(reverse("accounts:signup"), {"name": "Ali", "username": "ali_x", "email": "Ali@Test.dev", "password": PW})
         self.assertRedirects(r, reverse("feed:home"))
         u = User.objects.get(email="ali@test.dev")
         self.assertEqual(u.profile.display_name, "Ali")
+        self.assertEqual(u.username, "ali_x")  # chosen by the user, not derived from the email
 
     def test_signup_rejects_duplicate_email_and_weak_password(self):
         make_user("bob")
-        r = self.client.post(reverse("accounts:signup"), {"name": "Bob2", "email": "BOB@test.dev", "password": PW})
+        r = self.client.post(reverse("accounts:signup"), {"name": "Bob2", "username": "bob2", "email": "BOB@test.dev", "password": PW})
         self.assertContains(r, "مسجّل مسبقاً")
-        r = self.client.post(reverse("accounts:signup"), {"name": "Zed", "email": "z@test.dev", "password": "12345678"})
+        r = self.client.post(reverse("accounts:signup"), {"name": "Zed", "username": "zed", "email": "z@test.dev", "password": "12345678"})
         self.assertEqual(User.objects.filter(email="z@test.dev").count(), 0)
 
     def test_login_by_email(self):
@@ -154,7 +155,7 @@ class ProfileTests(TestCase):
 
     def test_edit_profile_fields(self):
         r = self.client.post(reverse("accounts:profile_edit"), {
-            "display_name": "Ali N", "bio": "hi", "location": "Riyadh", "website": "https://example.com",
+            "display_name": "Ali N", "username": "me", "bio": "hi", "location": "Riyadh", "website": "https://example.com",
         })
         self.assertRedirects(r, reverse("feed:profile", args=["me"]))
         p = self.me.profile

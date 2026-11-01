@@ -2,14 +2,22 @@
 {% block content %}
 <header class="page-head"><h1>الرئيسية</h1></header>
 
-<form class="composer" method="post" action="{% url 'feed:post_create' %}">
+<form class="composer" method="post" action="{% url 'feed:post_create' %}" enctype="multipart/form-data" data-upload>
   {% csrf_token %}
   {% include "_avatar.html" with profile=user.profile cls="" %}
   <div class="composer-main">
     <label class="sr" for="id_content">اكتب تغريدة</label>
     {{ form.content }}
+    <div class="media-preview" id="media-preview" hidden>
+      <img alt="" id="preview-img" hidden><video id="preview-vid" controls hidden></video>
+      <button type="button" class="preview-x" id="preview-x" aria-label="إزالة المرفق">{% include "_icon.html" with name="x" %}</button>
+    </div>
     <div class="composer-bar">
-      <span class="count" id="count" aria-live="polite">280</span>
+      <div class="composer-tools">
+        <label class="tool-btn" title="إضافة صورة أو فيديو" for="id_media">{% include "_icon.html" with name="image" %}<span class="sr">إضافة صورة أو فيديو</span></label>
+        {{ form.media }}
+        <span class="count" id="count" aria-live="polite">280</span>
+      </div>
       <button class="btn primary" id="send">{% include "_icon.html" with name="edit" %} نشر</button>
     </div>
   </div>
@@ -29,14 +37,23 @@
 
 <script>
   (function () {
-    var t = document.getElementById('id_content'), c = document.getElementById('count'), b = document.getElementById('send');
+    var t = document.getElementById('id_content'), c = document.getElementById('count'), b = document.getElementById('send'), m = document.getElementById('id_media');
     function update() {
       var left = 280 - t.value.length;
       c.textContent = left;
       c.className = 'count' + (left < 0 ? ' over' : left < 20 ? ' warn' : '');
-      b.disabled = left < 0 || t.value.trim().length === 0;
+      b.disabled = left < 0 || (t.value.trim().length === 0 && !m.files.length);
     }
-    t.addEventListener('input', update); update();
+    t.addEventListener('input', update);
+    var box = document.getElementById('media-preview'), pi = document.getElementById('preview-img'), pv = document.getElementById('preview-vid');
+    function clearMedia() { m.value = ''; box.hidden = true; pi.hidden = pv.hidden = true; pi.removeAttribute('src'); pv.removeAttribute('src'); update(); }
+    m.addEventListener('change', function () {
+      if (!m.files.length) return clearMedia();
+      var f = m.files[0], url = URL.createObjectURL(f), isVid = f.type.indexOf('video') === 0;
+      pi.hidden = isVid; pv.hidden = !isVid; (isVid ? pv : pi).src = url; box.hidden = false; update();
+    });
+    document.getElementById('preview-x').addEventListener('click', clearMedia);
+    update();
   })();
 </script>
 {% endblock %}

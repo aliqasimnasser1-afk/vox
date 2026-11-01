@@ -5,9 +5,10 @@ A small X-style social app built with Django. Local development only.
 **Features:** email sign-up and login, 280-character posts, likes and favorites (HTMX, no page reload),
 notification center with a live unread badge (polls every 8s), follow/unfollow with a "following"
 timeline and follower lists, full profiles (avatar upload, bio, location, website, posts and likes tabs),
-post pages, who-to-follow suggestions, responsive layout (sidebar, right rail, mobile bottom nav),
-video splitter (upload a video, choose a length in seconds or minutes, get equal parts with
-progress, preview, per-part download and ZIP), pagination, Django admin.
+friends by username (requests, accept/decline) and private messages between friends, posts with images or
+videos, post pages, who-to-follow suggestions, responsive layout (sidebar, right rail, mobile bottom nav),
+video splitter (upload a video, choose a length in seconds or minutes; fast stream-copy mode splits a
+15-minute video in about 2 s, precise mode re-encodes in parallel; progress, preview, per-part download and ZIP), pagination, Django admin.
 
 ## Run
 
@@ -39,6 +40,8 @@ python manage.py test
 |------|---------|
 | `accounts/` | email login backend, signup, profile model (avatar, bio, location, website) and edit |
 | `feed/` | posts, likes, bookmarks, follows, notifications, timeline and profile views |
+| `social/` | friend requests, friendships and private messages |
+| `core/` | database-backed media storage (used on hosts with an ephemeral disk) |
 | `splitter/` | video splitter: ffmpeg worker thread, progress, parts, ZIP download |
 | `templates/`, `static/` | RTL Arabic UI, HTMX for likes and deletes |
 | `config/` | settings and root URLs |
@@ -62,4 +65,10 @@ Live: https://vox-j4xf.onrender.com/
 
 Free-tier limits: the service sleeps after ~15 minutes idle (first request takes ~50 s), the free
 database expires after 30 days, and the disk is ephemeral, so uploaded avatars and split videos are
-lost on restart or redeploy.
+lost on restart or redeploy. Avatars and post images/videos are stored in the database
+(`MEDIA_IN_DB=1`) so they survive, but the splitter's working files are not.
+
+## Privacy
+
+Emails are never shown. Public identity is the username (chosen at signup, changeable in the profile
+editor) and the avatar. A data migration renamed accounts whose username was derived from the email.

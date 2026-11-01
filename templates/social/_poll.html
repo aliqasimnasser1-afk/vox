@@ -1,0 +1,1 @@
+{% for m in new %}{% include "social/_bubble.html" %}{% endfor %}<div id="poller" hx-get="{% url 'social:poll' other.username %}?after={{ after }}" hx-trigger="every 3s" hx-swap="outerHTML"></div>

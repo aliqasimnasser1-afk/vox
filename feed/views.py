@@ -11,6 +11,16 @@ from .forms import PostForm
 from .models import Bookmark, Follow, Like, Notification, Post
 from .notifications import notify, unnotify
 
+
+def friend_status(viewer, other):
+    from social.services import status_for
+    return status_for(viewer, other)
+
+
+def friendship_between(viewer, other):
+    from social.services import between
+    return between(viewer, other)
+
 User = get_user_model()
 PAGE_SIZE = 20
 
@@ -47,11 +57,18 @@ def home(request):
 @login_required
 @require_POST
 def post_create(request):
-    form = PostForm(request.POST)
+    form = PostForm(request.POST, request.FILES)
     if form.is_valid():
-        Post.objects.create(author=request.user, content=form.cleaned_data["content"])
+        post = Post(author=request.user, content=form.cleaned_data["content"])
+        media = form.cleaned_data["media"]
+        if media:
+            kind, f = media
+            getattr(post, kind).save(f.name, f, save=False)
+        post.save()
+        messages.success(request, "تم نشر التغريدة.")
     else:
-        messages.error(request, "التغريدة فارغة أو أطول من 280 حرفاً.")
+        errs = [e for field in form.errors.values() for e in field]
+        messages.error(request, errs[0] if errs else "تعذّر النشر.")
     return redirect("feed:home")
 
 
@@ -154,6 +171,8 @@ def profile(request, username):
         "tab": tab,
         "page": paginate(request, annotated(qs, request.user)),
         "is_following": Follow.objects.filter(follower=request.user, followee=owner).exists(),
+        "friend_status": friend_status(request.user, owner),
+        "friendship": friendship_between(request.user, owner),
         "followers_count": owner.followers.count(),
         "following_count": owner.following.count(),
         "posts_count": owner.posts.count(),

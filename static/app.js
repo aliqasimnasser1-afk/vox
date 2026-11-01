@@ -1,4 +1,4 @@
-/* Small progressive-enhancement helpers. Everything works without JS except the theme toggle. */
+/* Small progressive-enhancement helpers. Everything works without JS except the theme toggle and upload progress. */
 (function () {
   var root = document.documentElement;
 
@@ -55,5 +55,93 @@
       e.preventDefault();
       if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; show(); }
     });
+  });
+
+  // Upload progress: any <form data-upload> with a chosen file is sent with XHR so the user sees a progress bar.
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!form.matches('form[data-upload]')) return;
+    var hasFile = Array.prototype.some.call(form.querySelectorAll('input[type=file]'), function (i) { return i.files.length; });
+    if (!hasFile || form.dataset.sending) return; // no file: normal submit
+    e.preventDefault();
+    form.dataset.sending = '1';
+
+    var box = document.createElement('div');
+    box.className = 'upload-overlay';
+    box.setAttribute('role', 'status');
+    box.innerHTML = '<div class="upload-card"><div class="upload-title"><span class="spin"></span><strong>جارٍ الرفع…</strong><span class="upload-pct">0%</span></div>' +
+      '<div class="progress"><span style="width:0%"></span></div><p class="muted small-txt upload-note">لا تغلق الصفحة حتى يكتمل الرفع.</p></div>';
+    document.body.appendChild(box);
+    var bar = box.querySelector('.progress span'), pct = box.querySelector('.upload-pct'), note = box.querySelector('.upload-note');
+    function warn(ev) { ev.preventDefault(); ev.returnValue = ''; }
+    window.addEventListener('beforeunload', warn);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open((form.method || 'POST').toUpperCase(), form.action || location.href);
+    xhr.upload.onprogress = function (p) {
+      if (!p.lengthComputable) return;
+      var v = Math.round(p.loaded / p.total * 100);
+      bar.style.width = v + '%'; pct.textContent = v + '%';
+      if (v >= 100) note.textContent = 'اكتمل الرفع، جارٍ المعالجة…';
+    };
+    function fail() {
+      window.removeEventListener('beforeunload', warn);
+      box.remove(); delete form.dataset.sending;
+      alert('تعذّر الرفع. تحقّق من الاتصال وحاول مرة أخرى.');
+    }
+    xhr.onerror = fail;
+    xhr.onload = function () {
+      window.removeEventListener('beforeunload', warn);
+      var landed = xhr.responseURL || location.href;
+      var sameForm = landed.split('#')[0] === (form.action || location.href).split('#')[0];
+      if (xhr.status >= 500) return fail();
+      if (!sameForm) { location.href = landed; return; }
+      document.open(); document.write(xhr.responseText); document.close(); // validation errors: show the re-rendered form
+    };
+    xhr.send(new FormData(form));
+  });
+
+  // Chat: reset the form after a successful htmx send, keep the newest message in view.
+  document.addEventListener('htmx:afterRequest', function (e) {
+    var f = e.detail.elt;
+    if (f.matches && f.matches('form[data-reset-on-success]') && e.detail.successful) {
+      f.reset();
+      var t = f.querySelector('textarea');
+      if (t) { t.style.height = ''; t.focus(); }
+      var em = document.getElementById('chat-empty');
+      if (em) em.remove();
+    }
+  });
+  function toBottom() { if (document.getElementById('msgs')) window.scrollTo({ top: document.body.scrollHeight }); }
+  document.addEventListener('htmx:afterSwap', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#msgs')) toBottom();
+  });
+  window.addEventListener('load', toBottom);
+
+  // Enter sends, Shift+Enter makes a new line; the box grows with its text.
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey && e.target.matches('.chat-form textarea')) {
+      e.preventDefault();
+      if (e.target.value.trim()) e.target.form.requestSubmit();
+    }
+  });
+  document.addEventListener('input', function (e) {
+    if (e.target.matches('.chat-form textarea')) {
+      e.target.style.height = 'auto';
+      e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px';
+    }
+  });
+
+  // Mobile "more" sheet.
+  var sheet = document.getElementById('more-sheet'), back = document.querySelector('.sheet-backdrop');
+  function sheetOpen(open) {
+    if (!sheet) return;
+    sheet.hidden = !open; back.hidden = !open;
+    var b = document.querySelector('[data-sheet-toggle]');
+    if (b) b.setAttribute('aria-expanded', open);
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('[data-sheet-toggle]')) sheetOpen(sheet.hidden);
+    else if (e.target.closest('[data-sheet-close]')) sheetOpen(false);
   });
 })();

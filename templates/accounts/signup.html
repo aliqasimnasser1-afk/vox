@@ -7,6 +7,7 @@
     {% csrf_token %}
     {% for e in form.non_field_errors %}<div class="notice-box error" role="alert">{% include "_icon.html" with name="alert" %}<span>{{ e }}</span></div>{% endfor %}
     {% include "_field.html" with field=form.name %}
+    {% include "_field.html" with field=form.username %}
     {% include "_field.html" with field=form.email %}
     {% include "_field.html" with field=form.password password=True %}
     <button class="btn primary block">إنشاء الحساب</button>

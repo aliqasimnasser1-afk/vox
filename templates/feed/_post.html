@@ -6,7 +6,9 @@
       <span class="muted handle" dir="ltr">@{{ post.author.username }}</span>
       <a href="{% url 'feed:post_detail' post.id %}" class="muted time">· {{ post.created_at|timesince }}</a>
     </div>
-    <p class="content">{{ post.content }}</p>
+    {% if post.content %}<p class="content">{{ post.content }}</p>{% endif %}
+    {% if post.image %}<a href="{{ post.image.url }}" target="_blank" rel="noopener" class="media-link"><img class="post-media" src="{{ post.image.url }}" alt="صورة مرفقة بالتغريدة" loading="lazy"></a>{% endif %}
+    {% if post.video %}<video class="post-media" controls preload="metadata" src="{{ post.video.url }}"></video>{% endif %}
     <div class="actions">
       <button class="act{% if post.liked %} liked{% endif %}"
               hx-post="{% url 'feed:like' post.id %}" hx-target="#post-{{ post.id }}" hx-swap="outerHTML"

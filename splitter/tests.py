@@ -21,7 +21,7 @@ def make_video(seconds=10):
     tmp = Path(tempfile.mkdtemp()) / "t.mp4"
     subprocess.run(
         [services.FFMPEG, "-y", "-nostdin", "-loglevel", "error", "-f", "lavfi", "-i", f"testsrc=size=160x120:rate=15:duration={seconds}",
-         "-f", "lavfi", "-i", f"sine=frequency=440:duration={seconds}", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+         "-f", "lavfi", "-i", f"sine=frequency=440:duration={seconds}", "-c:v", "libx264", "-g", "15", "-keyint_min", "15", "-pix_fmt", "yuv420p",
          "-c:a", "aac", "-shortest", str(tmp)],
         check=True, capture_output=True,
     )
@@ -46,13 +46,13 @@ class SplitterTests(TestCase):
         self.user = User.objects.create_user("u1", "u1@test.dev", PW)
         self.client.force_login(self.user)
 
-    def upload(self, amount=3, unit="s", name="clip.mp4", data=None):
+    def upload(self, amount=3, unit="s", name="clip.mp4", data=None, mode="precise"):
         # Run the worker inline so the test is deterministic.
         from unittest import mock
         with mock.patch.object(services, "start_job", side_effect=services.process_job):
             return self.client.post(reverse("splitter:index"), {
                 "video": SimpleUploadedFile(name, data or self.video, content_type="video/mp4"),
-                "amount": amount, "unit": unit,
+                "amount": amount, "unit": unit, "mode": mode,
             })
 
     def test_split_into_parts(self):
@@ -64,6 +64,14 @@ class SplitterTests(TestCase):
         self.assertAlmostEqual(job.parts.first().duration, 3, delta=0.6)
         self.assertEqual(job.segment_seconds, 3)
 
+    def test_fast_mode_copies_without_reencoding(self):
+        self.upload(3, "s", mode="fast")
+        job = VideoJob.objects.get()
+        self.assertEqual(job.status, VideoJob.DONE)
+        self.assertEqual(job.mode, "fast")
+        self.assertGreaterEqual(job.parts.count(), 3)  # cuts snap to keyframes (every 1s here)
+        self.assertAlmostEqual(sum(p.duration for p in job.parts.all()), 10, delta=1.2)
+
     def test_minutes_unit(self):
         self.upload(1, "m")
         job = VideoJob.objects.get()
@@ -72,7 +80,7 @@ class SplitterTests(TestCase):
 
     def test_rejects_bad_extension_and_non_video(self):
         r = self.client.post(reverse("splitter:index"), {
-            "video": SimpleUploadedFile("a.txt", b"hello"), "amount": 5, "unit": "s"})
+            "video": SimpleUploadedFile("a.txt", b"hello"), "amount": 5, "unit": "s", "mode": "fast"})
         self.assertContains(r, "صيغة غير مدعومة")
         r = self.upload(5, "s", name="fake.mp4", data=b"not a video at all")
         self.assertContains(r, "تعذّرت قراءة الفيديو")
@@ -131,7 +139,7 @@ class PartAccessTests(TestCase):
         from unittest import mock
         with mock.patch.object(services, "start_job", side_effect=services.process_job):
             self.client.post(reverse("splitter:index"), {
-                "video": SimpleUploadedFile("c.mp4", self.video, content_type="video/mp4"), "amount": 3, "unit": "s"})
+                "video": SimpleUploadedFile("c.mp4", self.video, content_type="video/mp4"), "amount": 3, "unit": "s", "mode": "precise"})
         self.job = VideoJob.objects.get()
 
     def test_owner_gets_file_with_range_support(self):

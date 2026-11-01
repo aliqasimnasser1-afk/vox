@@ -5,13 +5,13 @@
 <section aria-label="الإشعارات">
   {% for n in items %}
   <a class="notif{% if n.pk in unread_ids %} unread{% endif %}"
-     href="{% if n.post_id %}{% url 'feed:post_detail' n.post_id %}{% else %}{% url 'feed:profile' n.actor.username %}{% endif %}">
-    <span class="notif-ico {{ n.kind }}">{% if n.kind == 'like' %}{% include "_icon.html" with name="heart" fill=True %}{% else %}{% include "_icon.html" with name="user-plus" %}{% endif %}</span>
+     href="{% if n.post_id %}{% url 'feed:post_detail' n.post_id %}{% elif n.kind == 'friend_request' %}{% url 'social:friends' %}?tab=requests{% else %}{% url 'feed:profile' n.actor.username %}{% endif %}">
+    <span class="notif-ico {{ n.kind }}">{% if n.kind == 'like' %}{% include "_icon.html" with name="heart" fill=True %}{% elif n.kind == 'follow' %}{% include "_icon.html" with name="user-plus" %}{% else %}{% include "_icon.html" with name="users" %}{% endif %}</span>
     <span class="notif-body">
       {% include "_avatar.html" with profile=n.actor.profile cls="sm" %}
       <span class="notif-text">
         <strong>{{ n.actor.profile.display_name }}</strong>
-        {% if n.kind == 'like' %}أعجب بتغريدتك{% else %}بدأ بمتابعتك{% endif %}
+        {% if n.kind == 'like' %}أعجب بتغريدتك{% elif n.kind == 'follow' %}بدأ بمتابعتك{% elif n.kind == 'friend_request' %}أرسل لك طلب صداقة{% else %}قبل طلب صداقتك{% endif %}
         <span class="muted">· {{ n.created_at|timesince }}</span>
         {% if n.post %}<span class="snippet">{{ n.post.content|truncatechars:90 }}</span>{% endif %}
       </span>

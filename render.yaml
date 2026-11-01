@@ -7,6 +7,8 @@ services:
     envVars:
       - key: DEBUG
         value: "0"
+      - key: MEDIA_IN_DB
+        value: "1"
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL

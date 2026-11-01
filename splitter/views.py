@@ -1,4 +1,5 @@
 import math
+import mimetypes
 import re
 from pathlib import Path
 import tempfile
@@ -33,7 +34,8 @@ def index(request):
     if request.method == "POST" and available and form.is_valid():
         seg = form.segment_seconds
         video = form.cleaned_data["video"]
-        job = VideoJob.objects.create(user=request.user, title=video.name[:200], source=video, segment_seconds=seg)
+        job = VideoJob.objects.create(user=request.user, title=video.name[:200], source=video, segment_seconds=seg,
+                                      mode=form.cleaned_data["mode"])
         duration = services.probe_duration(job.source.path)
         if not duration:
             job.delete_files(); job.delete()
@@ -100,18 +102,19 @@ def download_zip(request, job_id):
     tmp = tempfile.TemporaryFile()
     with zipfile.ZipFile(tmp, "w", zipfile.ZIP_STORED) as z:  # videos are already compressed
         for p in job.parts.all():
-            z.write(p.file.path, arcname=f"part_{p.index:03d}.mp4")
+            z.write(p.file.path, arcname=f"part_{p.index:03d}{Path(p.file.name).suffix}")
     tmp.seek(0)
     return FileResponse(tmp, as_attachment=True, filename=f"video_parts_{job.pk}.zip")
 
 
 def _ranged(request, path, filename, download):
+    ctype = mimetypes.guess_type(filename)[0] or "video/mp4"
     """Serve a file with HTTP Range support so the browser's video player can seek."""
     size = path.stat().st_size
     m = re.match(r"bytes=(\d*)-(\d*)$", request.headers.get("Range", ""))
     disp = "attachment" if download else "inline"
     if not m or not (m.group(1) or m.group(2)):
-        resp = FileResponse(open(path, "rb"), content_type="video/mp4")
+        resp = FileResponse(open(path, "rb"), content_type=ctype)
         resp["Content-Length"] = size
     else:
         start = int(m.group(1)) if m.group(1) else max(0, size - int(m.group(2)))
@@ -121,7 +124,7 @@ def _ranged(request, path, filename, download):
         with open(path, "rb") as f:
             f.seek(start)
             data = f.read(end - start + 1)
-        resp = HttpResponse(data, status=206, content_type="video/mp4")
+        resp = HttpResponse(data, status=206, content_type=ctype)
         resp["Content-Range"] = f"bytes {start}-{end}/{size}"
         resp["Content-Length"] = len(data)
     resp["Accept-Ranges"] = "bytes"
@@ -133,4 +136,4 @@ def _ranged(request, path, filename, download):
 def part_file(request, job_id, index):
     """Owner-only access to a part's video (uploads are never exposed through /media/)."""
     part = get_object_or_404(VideoPart, job_id=job_id, index=index, job__user=request.user)
-    return _ranged(request, Path(part.file.path), f"part_{part.index:03d}.mp4", "download" in request.GET)
+    return _ranged(request, Path(part.file.path), f"part_{part.index:03d}{Path(part.file.name).suffix}", "download" in request.GET)

@@ -3,13 +3,14 @@
   <section class="job-summary">
     <div class="stat"><span class="muted">مدة الفيديو</span><strong>{{ job.duration|clock }}</strong></div>
     <div class="stat"><span class="muted">طول كل جزء</span><strong>{{ job.segment_seconds|human_len }}</strong></div>
+    <div class="stat"><span class="muted">الطريقة</span><strong>{% if job.mode == 'fast' %}سريع{% else %}دقيق{% endif %}</strong></div>
     <div class="stat"><span class="muted">الحالة</span><strong><span class="pill {{ job.status }}">{{ job.get_status_display }}</span></strong></div>
   </section>
 
   {% if job.active %}
     <div class="progress-wrap" role="status" aria-live="polite">
       <div class="progress" role="progressbar" aria-valuenow="{{ job.progress }}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{ job.progress }}%"></span></div>
-      <p class="muted">جارٍ التقسيم… {{ job.progress }}%</p>
+      <p class="muted progress-text">{% include "_icon.html" with name="loader" %} جارٍ التقسيم… {{ job.progress }}%</p>
     </div>
   {% elif job.status == 'failed' %}
     <div class="notice-box error" role="alert">
