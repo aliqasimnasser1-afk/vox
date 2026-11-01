@@ -23,6 +23,7 @@
         {% include "feed/_badge.html" %}
       </a>
       <a href="{% url 'feed:bookmarks' %}" class="{% if nav == 'bookmarks' %}active{% endif %}" {% if nav == 'bookmarks' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="bookmark" %}<span>المفضلة</span></a>
+      <a href="{% url 'splitter:index' %}" class="{% if nav == 'splitter' %}active{% endif %}" {% if nav == 'splitter' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="scissors" %}<span>تقسيم الفيديو</span></a>
       <a href="{% url 'feed:profile' user.username %}" class="{% if nav == 'profile' %}active{% endif %}" {% if nav == 'profile' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="user" %}<span>الملف الشخصي</span></a>
     </nav>
     <a href="{% url 'feed:home' %}#id_content" class="btn primary block">نشر تغريدة</a>
@@ -68,6 +69,7 @@
   <a href="{% url 'feed:home' %}" class="{% if nav == 'home' %}active{% endif %}" aria-label="الرئيسية">{% include "_icon.html" with name="home" %}</a>
   <a href="{% url 'feed:notifications' %}" class="{% if nav == 'notifications' %}active{% endif %}" aria-label="الإشعارات">{% include "_icon.html" with name="bell" %}{% if unread_count %}<span class="dot"></span>{% endif %}</a>
   <a href="{% url 'feed:bookmarks' %}" class="{% if nav == 'bookmarks' %}active{% endif %}" aria-label="المفضلة">{% include "_icon.html" with name="bookmark" %}</a>
+  <a href="{% url 'splitter:index' %}" class="{% if nav == 'splitter' %}active{% endif %}" aria-label="تقسيم الفيديو">{% include "_icon.html" with name="scissors" %}</a>
   <a href="{% url 'feed:profile' user.username %}" class="{% if nav == 'profile' %}active{% endif %}" aria-label="الملف الشخصي">{% include "_icon.html" with name="user" %}</a>
 </nav>
 {% endblock %}

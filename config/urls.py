@@ -6,5 +6,6 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("accounts.urls")),
+    path("", include("splitter.urls")),
     path("", include("feed.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # serves uploads in DEBUG only

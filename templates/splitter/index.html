@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load splitter_tags %}
+{% block title %}تقسيم الفيديو · Vox{% endblock %}
+{% block content %}
+<header class="page-head"><h1>تقسيم الفيديو</h1></header>
+
+<section class="pad-form">
+  <p class="muted lead">ارفع فيديو، حدّد طول كل جزء بالثواني أو الدقائق، وسنقسّمه إلى أجزاء متساوية جاهزة للمعاينة والتحميل.</p>
+
+  {% if not available %}
+    <div class="notice-box error" role="alert">أداة ffmpeg غير مثبّتة على الجهاز، لذلك لا يمكن تقسيم الفيديو.</div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="stack" id="split-form" novalidate>
+    {% csrf_token %}
+    {% for e in form.non_field_errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
+    {% include "_field.html" with field=form.video %}
+    <div class="split-row">
+      <div class="grow">{% include "_field.html" with field=form.amount %}</div>
+      <div>{% include "_field.html" with field=form.unit %}</div>
+    </div>
+    <p class="muted small-txt">الصيغ: mp4, mov, mkv, webm, avi. الحد الأقصى 500 ميجابايت و300 جزء.</p>
+    <button class="btn primary" id="split-btn" {% if not available %}disabled{% endif %}>{% include "_icon.html" with name="scissors" %} قسّم الفيديو</button>
+  </form>
+</section>
+
+{% if jobs %}
+<h2 class="section-title">عملياتك السابقة</h2>
+<section aria-label="العمليات السابقة">
+  {% for j in jobs %}
+  <a class="job-row" href="{% url 'splitter:detail' j.pk %}">
+    <span class="job-ico">{% include "_icon.html" with name="film" %}</span>
+    <span class="job-main">
+      <strong>{{ j.title }}</strong>
+      <span class="muted small-txt">{{ j.duration|clock }} · كل {{ j.segment_seconds|human_len }} · {{ j.created_at|timesince }}</span>
+    </span>
+    <span class="pill {{ j.status }}">{{ j.get_status_display }}{% if j.status == 'processing' %} {{ j.progress }}%{% endif %}</span>
+  </a>
+  {% endfor %}
+</section>
+{% endif %}
+
+<script>
+  document.getElementById('split-form').addEventListener('submit', function () {
+    var b = document.getElementById('split-btn');
+    b.disabled = true; b.textContent = 'جارٍ الرفع…';
+  });
+</script>
+{% endblock %}

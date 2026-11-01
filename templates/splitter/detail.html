@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} · تقسيم الفيديو{% endblock %}
+{% block content %}
+<header class="page-head">
+  <a href="{% url 'splitter:index' %}" class="back" aria-label="رجوع">→</a>
+  <div><h1>{{ job.title|truncatechars:40 }}</h1><span class="muted small-txt">تقسيم الفيديو</span></div>
+</header>
+{% include "splitter/_job_body.html" %}
+{% endblock %}

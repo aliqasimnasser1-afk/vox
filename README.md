@@ -6,7 +6,8 @@ A small X-style social app built with Django. Local development only.
 notification center with a live unread badge (polls every 8s), follow/unfollow with a "following"
 timeline and follower lists, full profiles (avatar upload, bio, location, website, posts and likes tabs),
 post pages, who-to-follow suggestions, responsive layout (sidebar, right rail, mobile bottom nav),
-pagination, Django admin.
+video splitter (upload a video, choose a length in seconds or minutes, get equal parts with
+progress, preview, per-part download and ZIP), pagination, Django admin.
 
 ## Run
 
@@ -38,11 +39,14 @@ python manage.py test
 |------|---------|
 | `accounts/` | email login backend, signup, profile model (avatar, bio, location, website) and edit |
 | `feed/` | posts, likes, bookmarks, follows, notifications, timeline and profile views |
+| `splitter/` | video splitter: ffmpeg worker thread, progress, parts, ZIP download |
 | `templates/`, `static/` | RTL Arabic UI, HTMX for likes and deletes |
 | `config/` | settings and root URLs |
 
 ## Notes
 
+- The video splitter needs `ffmpeg` and `ffprobe` on the PATH. Splitting re-encodes (H.264/AAC) so every
+  cut is exact; limits are 500 MB and 300 parts per video.
 - `SECRET_KEY` in `config/settings.py` is a development placeholder. Set a real one and
   `DEBUG = False` before any deployment.
 - The database is SQLite (`db.sqlite3`) and uploaded avatars go to `media/`; both are git-ignored.

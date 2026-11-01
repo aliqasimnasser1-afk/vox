@@ -1,0 +1,43 @@
+{% load splitter_tags %}
+<div id="job-body"{% if job.active %} hx-get="{% url 'splitter:status' job.pk %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  <section class="job-summary">
+    <div class="stat"><span class="muted">مدة الفيديو</span><strong>{{ job.duration|clock }}</strong></div>
+    <div class="stat"><span class="muted">طول كل جزء</span><strong>{{ job.segment_seconds|human_len }}</strong></div>
+    <div class="stat"><span class="muted">الحالة</span><strong><span class="pill {{ job.status }}">{{ job.get_status_display }}</span></strong></div>
+  </section>
+
+  {% if job.active %}
+    <div class="progress-wrap" role="status" aria-live="polite">
+      <div class="progress" role="progressbar" aria-valuenow="{{ job.progress }}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{ job.progress }}%"></span></div>
+      <p class="muted">جارٍ التقسيم… {{ job.progress }}%</p>
+    </div>
+  {% elif job.status == 'failed' %}
+    <div class="notice-box error" role="alert">
+      فشل التقسيم{% if job.error %}: <span dir="ltr">{{ job.error }}</span>{% endif %}
+      <form method="post" action="{% url 'splitter:retry' job.pk %}" class="inline-form">{% csrf_token %}<button class="btn small primary">إعادة المحاولة</button></form>
+    </div>
+  {% else %}
+    <div class="job-actions">
+      <a class="btn primary" href="{% url 'splitter:zip' job.pk %}">تحميل الكل (ZIP)</a>
+      <span class="muted">{{ job.parts.count }} جزء</span>
+    </div>
+    <section class="parts" aria-label="الأجزاء">
+      {% for p in job.parts.all %}
+      <article class="part">
+        <video controls preload="metadata" src="{{ p.file.url }}"></video>
+        <div class="part-info">
+          <strong>الجزء {{ p.index }}</strong>
+          <span class="muted small-txt">من {{ p.start|clock }} · المدة {{ p.duration|clock }}</span>
+          <a class="btn ghost small" href="{{ p.file.url }}" download="part_{{ p.index }}.mp4">تحميل</a>
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {% if not job.active %}
+  <form method="post" action="{% url 'splitter:delete' job.pk %}" class="danger-zone" onsubmit="return confirm('حذف الفيديو وكل أجزائه؟')">
+    {% csrf_token %}<button class="btn ghost danger-btn">{% include "_icon.html" with name="trash" %} حذف هذه العملية</button>
+  </form>
+  {% endif %}
+</div>
