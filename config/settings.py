@@ -11,14 +11,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = os.environ.get("DEBUG", "1") == "1"
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-key-change-me")
 if not DEBUG and SECRET_KEY == "dev-only-insecure-key-change-me":
-    raise RuntimeError("Set the SECRET_KEY environment variable when DEBUG is off.")
+    if os.environ.get("ALLOW_EPHEMERAL_SECRET") == "1":
+        # Hosts where no secret is configured (e.g. a Hugging Face Space): a random key per boot.
+        # Sessions end on restart, which is acceptable for a mirror; nothing sensitive is derived from it.
+        from django.core.management.utils import get_random_secret_key
+        SECRET_KEY = get_random_secret_key()
+    else:
+        raise RuntimeError("Set the SECRET_KEY environment variable when DEBUG is off.")
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 CSRF_TRUSTED_ORIGINS = []
-_render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-if _render_host:
-    ALLOWED_HOSTS.append(_render_host)
-    CSRF_TRUSTED_ORIGINS.append(f"https://{_render_host}")
+# Public hostnames injected by the hosting platforms we support.
+for _var in ("RENDER_EXTERNAL_HOSTNAME", "SPACE_HOST", "KOYEB_PUBLIC_DOMAIN"):
+    _host = os.environ.get(_var)
+    if _host:
+        ALLOWED_HOSTS.append(_host)
+        CSRF_TRUSTED_ORIGINS.append(f"https://{_host}")
 ALLOWED_HOSTS += [h for h in os.environ.get("EXTRA_ALLOWED_HOSTS", "").split(",") if h]
 
 INSTALLED_APPS = [
