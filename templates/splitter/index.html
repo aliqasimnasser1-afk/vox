@@ -8,13 +8,19 @@
   <p class="muted lead">ارفع فيديو، حدّد طول كل جزء بالثواني أو الدقائق، وسنقسّمه إلى أجزاء متساوية جاهزة للمعاينة والتحميل.</p>
 
   {% if not available %}
-    <div class="notice-box error" role="alert">أداة ffmpeg غير مثبّتة على الجهاز، لذلك لا يمكن تقسيم الفيديو.</div>
+    <div class="notice-box error" role="alert">{% include "_icon.html" with name="alert" %}<span>أداة ffmpeg غير مثبّتة على الجهاز، لذلك لا يمكن تقسيم الفيديو.</span></div>
   {% endif %}
 
   <form method="post" enctype="multipart/form-data" class="stack" id="split-form" novalidate>
     {% csrf_token %}
     {% for e in form.non_field_errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
-    {% include "_field.html" with field=form.video %}
+    <label class="dropzone" for="{{ form.video.id_for_label }}">
+      <span class="dz-ico">{% include "_icon.html" with name="upload" %}</span>
+      <strong>اسحب الفيديو هنا أو اضغط للاختيار</strong>
+      <span class="muted" data-file-name>mp4 · mov · mkv · webm · avi</span>
+      {{ form.video }}
+    </label>
+    {% for e in form.video.errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
     <div class="split-row">
       <div class="grow">{% include "_field.html" with field=form.amount %}</div>
       <div>{% include "_field.html" with field=form.unit %}</div>

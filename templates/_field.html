@@ -1,4 +1,11 @@
-<label>{{ field.label }}
-  {{ field }}
-</label>
-{% for e in field.errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
+<div class="field{% if field.errors %} has-error{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% if password %}
+  <div class="pw-wrap">{{ field }}
+    <button type="button" class="pw-toggle" data-toggle-password="{{ field.id_for_label }}" aria-label="إظهار أو إخفاء كلمة المرور" aria-pressed="false">
+      <span class="eye-on">{% include "_icon.html" with name="eye" %}</span><span class="eye-off">{% include "_icon.html" with name="eye-off" %}</span>
+    </button>
+  </div>
+  {% else %}{{ field }}{% endif %}
+  {% for e in field.errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
+</div>

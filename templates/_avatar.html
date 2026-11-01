@@ -1,1 +1,1 @@
-{% if profile.avatar %}<img class="avatar {{ cls }}" src="{{ profile.avatar.url }}" alt="" loading="lazy">{% else %}<div class="avatar {{ cls }}" aria-hidden="true">{{ profile.initial }}</div>{% endif %}
+{% load ui_tags %}{% if profile.avatar %}<img class="avatar {{ cls }}" src="{{ profile.avatar.url }}" alt="" loading="lazy">{% else %}<div class="avatar {{ cls }}" style="--h: {{ profile.user.username|hue }}" aria-hidden="true">{{ profile.initial }}</div>{% endif %}

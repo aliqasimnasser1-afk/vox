@@ -13,12 +13,13 @@
     </div>
   {% elif job.status == 'failed' %}
     <div class="notice-box error" role="alert">
+      {% include "_icon.html" with name="alert" %}
       فشل التقسيم{% if job.error %}: <span dir="ltr">{{ job.error }}</span>{% endif %}
       <form method="post" action="{% url 'splitter:retry' job.pk %}" class="inline-form">{% csrf_token %}<button class="btn small primary">إعادة المحاولة</button></form>
     </div>
   {% else %}
     <div class="job-actions">
-      <a class="btn primary" href="{% url 'splitter:zip' job.pk %}">تحميل الكل (ZIP)</a>
+      <a class="btn primary" href="{% url 'splitter:zip' job.pk %}">{% include "_icon.html" with name="archive" %} تحميل الكل (ZIP)</a>
       <span class="muted">{{ job.parts.count }} جزء</span>
     </div>
     <section class="parts" aria-label="الأجزاء">
@@ -28,7 +29,7 @@
         <div class="part-info">
           <strong>الجزء {{ p.index }}</strong>
           <span class="muted small-txt">من {{ p.start|clock }} · المدة {{ p.duration|clock }}</span>
-          <a class="btn ghost small" href="{% url 'splitter:part' job.pk p.index %}?download=1">تحميل</a>
+          <a class="btn ghost small" href="{% url 'splitter:part' job.pk p.index %}?download=1">{% include "_icon.html" with name="download" %} تحميل</a>
         </div>
       </article>
       {% endfor %}

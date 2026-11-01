@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-shell">
+  <aside class="auth-brand" aria-hidden="true">
+    <div class="auth-brand-inner">
+      <span class="auth-logo">{% include "_logo.html" with size=56 %}</span>
+      <h2>شارك أفكارك.<br>تابع من يهمّك.</h2>
+      <p>منصة اجتماعية خفيفة وسريعة بتصميم عربي نظيف.</p>
+      <ul>
+        <li>{% include "_icon.html" with name="zap" %}<span>تغريدات وإعجابات فورية</span></li>
+        <li>{% include "_icon.html" with name="bell" %}<span>إشعارات لكل جديد</span></li>
+        <li>{% include "_icon.html" with name="scissors" %}<span>أداة لتقسيم الفيديو</span></li>
+        <li>{% include "_icon.html" with name="shield" %}<span>حسابك وبياناتك محمية</span></li>
+      </ul>
+    </div>
+  </aside>
+  <main class="auth-main">
+    <button type="button" class="icon-btn auth-theme" data-theme-toggle aria-label="تبديل المظهر">
+      <span class="when-dark">{% include "_icon.html" with name="sun" %}</span><span class="when-light">{% include "_icon.html" with name="moon" %}</span>
+    </button>
+    <div class="auth-card">
+      <span class="auth-logo-sm">{% include "_logo.html" with size=44 %}</span>
+      {% block auth_content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}
