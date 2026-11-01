@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from .models import Profile
 
 User = get_user_model()
+MAX_AVATAR = 2 * 1024 * 1024
 
 
 class SignupForm(forms.Form):
@@ -66,7 +67,28 @@ class LoginForm(forms.Form):
 
 
 class ProfileForm(forms.ModelForm):
+    remove_avatar = forms.BooleanField(label="حذف الصورة الحالية", required=False)
+
     class Meta:
         model = Profile
-        fields = ["display_name", "bio"]
-        widgets = {"bio": forms.Textarea(attrs={"rows": 3})}
+        fields = ["display_name", "bio", "location", "website", "avatar"]
+        widgets = {
+            "bio": forms.Textarea(attrs={"rows": 3}),
+            "avatar": forms.FileInput(attrs={"accept": "image/*"}),
+            "website": forms.URLInput(attrs={"dir": "ltr", "placeholder": "https://"}),
+        }
+
+    def clean_avatar(self):
+        f = self.cleaned_data.get("avatar")
+        if f and hasattr(f, "size") and f.size > MAX_AVATAR:
+            raise ValidationError("حجم الصورة أكبر من 2 ميجابايت.")
+        return f
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        if self.cleaned_data.get("remove_avatar") and not self.files.get("avatar"):
+            profile.avatar.delete(save=False)
+            profile.avatar = ""
+        if commit:
+            profile.save()
+        return profile

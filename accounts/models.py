@@ -4,10 +4,18 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
+def avatar_path(instance, filename):
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "jpg"
+    return f"avatars/{instance.user_id}.{ext}"
+
+
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
     display_name = models.CharField("الاسم", max_length=40)
     bio = models.CharField("النبذة", max_length=160, blank=True)
+    location = models.CharField("الموقع", max_length=40, blank=True)
+    website = models.URLField("الموقع الإلكتروني", max_length=100, blank=True)
+    avatar = models.ImageField("الصورة الشخصية", upload_to=avatar_path, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

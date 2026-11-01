@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}تغريدة {{ post.author.profile.display_name }} · Vox{% endblock %}
+{% block content %}
+<header class="page-head"><a href="{% url 'feed:home' %}" class="back" aria-label="رجوع">→</a><h1>التغريدة</h1></header>
+{% include "feed/_post.html" %}
+{% endblock %}

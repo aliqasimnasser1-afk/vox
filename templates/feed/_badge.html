@@ -1,0 +1,1 @@
+<span hx-get="{% url 'feed:badge' %}" hx-trigger="every 8s" hx-swap="outerHTML">{% if unread_count %}<span class="badge" aria-label="{{ unread_count }} إشعارات جديدة">{% if unread_count > 99 %}99+{% else %}{{ unread_count }}{% endif %}</span>{% endif %}</span>

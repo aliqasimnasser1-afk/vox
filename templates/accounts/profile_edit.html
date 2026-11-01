@@ -1,12 +1,21 @@
 {% extends "base.html" %}
 {% block title %}تعديل الملف · Vox{% endblock %}
 {% block content %}
+<header class="page-head"><a href="{% url 'feed:profile' user.username %}" class="back" aria-label="رجوع">→</a><h1>تعديل الملف الشخصي</h1></header>
 <section class="pad-form">
-  <h1>تعديل الملف الشخصي</h1>
-  <form method="post" class="stack" novalidate>
+  <form method="post" enctype="multipart/form-data" class="stack" novalidate>
     {% csrf_token %}
+    <div class="avatar-edit">
+      {% include "_avatar.html" with profile=user.profile cls="xl" %}
+      <div class="stack tight">
+        {% include "_field.html" with field=form.avatar %}
+        {% if user.profile.avatar %}<label class="check">{{ form.remove_avatar }} {{ form.remove_avatar.label }}</label>{% endif %}
+      </div>
+    </div>
     {% include "_field.html" with field=form.display_name %}
     {% include "_field.html" with field=form.bio %}
+    {% include "_field.html" with field=form.location %}
+    {% include "_field.html" with field=form.website %}
     <div class="row">
       <button class="btn primary">حفظ</button>
       <a class="btn ghost" href="{% url 'feed:profile' user.username %}">إلغاء</a>

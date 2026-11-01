@@ -1,12 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
+<header class="page-head"><h1>الرئيسية</h1></header>
+
 <form class="composer" method="post" action="{% url 'feed:post_create' %}">
   {% csrf_token %}
-  <label class="sr" for="id_content">اكتب تغريدة</label>
-  {{ form.content }}
-  <div class="composer-bar">
-    <span class="count" id="count" aria-live="polite">280</span>
-    <button class="btn primary" id="send">نشر</button>
+  {% include "_avatar.html" with profile=user.profile cls="" %}
+  <div class="composer-main">
+    <label class="sr" for="id_content">اكتب تغريدة</label>
+    {{ form.content }}
+    <div class="composer-bar">
+      <span class="count" id="count" aria-live="polite">280</span>
+      <button class="btn primary" id="send">نشر</button>
+    </div>
   </div>
 </form>
 

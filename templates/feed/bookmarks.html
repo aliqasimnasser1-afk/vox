@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}المفضلة · Vox{% endblock %}
+{% block content %}
+<header class="page-head"><h1>المفضلة</h1></header>
+<section aria-label="التغريدات المحفوظة">
+  {% for post in page %}{% include "feed/_post.html" %}
+  {% empty %}
+  <div class="empty">
+    {% include "_icon.html" with name="bookmark" %}
+    <h2>لا توجد عناصر في المفضلة</h2>
+    <p class="muted">اضغط على أيقونة الإشارة المرجعية تحت أي تغريدة لحفظها هنا.</p>
+  </div>
+  {% endfor %}
+</section>
+{% include "feed/_pager.html" %}
+{% endblock %}

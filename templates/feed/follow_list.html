@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{% if kind == 'followers' %}المتابِعون{% else %}يتابع{% endif %} · {{ owner.profile.display_name }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <a href="{% url 'feed:profile' owner.username %}" class="back" aria-label="رجوع">→</a>
+  <div><h1>{{ owner.profile.display_name }}</h1><span class="muted small-txt" dir="ltr">@{{ owner.username }}</span></div>
+</header>
+<div class="tabs" role="tablist">
+  <a href="{% url 'feed:follow_list' owner.username 'followers' %}" role="tab" aria-selected="{% if kind == 'followers' %}true{% else %}false{% endif %}">المتابِعون</a>
+  <a href="{% url 'feed:follow_list' owner.username 'following' %}" role="tab" aria-selected="{% if kind == 'following' %}true{% else %}false{% endif %}">يتابع</a>
+</div>
+<section>
+  {% for u in users %}
+  <div class="who row-item">
+    <a href="{% url 'feed:profile' u.username %}" class="who-link">
+      {% include "_avatar.html" with profile=u.profile cls="" %}
+      <span class="me-text"><strong>{{ u.profile.display_name }}</strong><span class="muted" dir="ltr">@{{ u.username }}</span>
+        {% if u.profile.bio %}<span class="snippet">{{ u.profile.bio }}</span>{% endif %}</span>
+    </a>
+    {% if u != user %}
+    <form method="post" action="{% url 'feed:follow' u.username %}">{% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button class="btn small {% if u.pk in mine %}ghost{% else %}primary{% endif %}">{% if u.pk in mine %}إلغاء المتابعة{% else %}متابعة{% endif %}</button>
+    </form>
+    {% endif %}
+  </div>
+  {% empty %}<p class="muted pad">لا يوجد أحد هنا بعد.</p>{% endfor %}
+</section>
+{% endblock %}

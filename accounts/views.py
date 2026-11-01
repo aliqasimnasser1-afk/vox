@@ -37,7 +37,7 @@ def logout_view(request):
 
 @login_required
 def profile_edit(request):
-    form = ProfileForm(request.POST or None, instance=request.user.profile)
+    form = ProfileForm(request.POST or None, request.FILES or None, instance=request.user.profile)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "تم حفظ الملف الشخصي.")

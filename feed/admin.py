@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Follow, Like, Post
+from .models import Bookmark, Follow, Like, Notification, Post
 
 
 @admin.register(Post)
@@ -10,5 +10,12 @@ class PostAdmin(admin.ModelAdmin):
     list_filter = ("created_at",)
 
 
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("recipient", "actor", "kind", "is_read", "created_at")
+    list_filter = ("kind", "is_read")
+
+
 admin.site.register(Like)
+admin.site.register(Bookmark)
 admin.site.register(Follow)

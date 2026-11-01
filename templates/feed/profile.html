@@ -1,23 +1,50 @@
 {% extends "base.html" %}
-{% block title %}{{ owner.profile.display_name }} · Vox{% endblock %}
+{% block title %}{{ owner.profile.display_name }} (@{{ owner.username }}) · Vox{% endblock %}
 {% block content %}
+<header class="page-head">
+  <a href="{% url 'feed:home' %}" class="back" aria-label="رجوع">→</a>
+  <div><h1>{{ owner.profile.display_name }}</h1><span class="muted small-txt">{{ posts_count }} تغريدة</span></div>
+</header>
+
 <section class="profile">
-  <div class="avatar big" aria-hidden="true">{{ owner.profile.initial }}</div>
-  <h1>{{ owner.profile.display_name }}</h1>
+  <div class="banner" aria-hidden="true"></div>
+  <div class="profile-top">
+    {% include "_avatar.html" with profile=owner.profile cls="xl" %}
+    <div class="profile-actions">
+      {% if owner == user %}
+        <a class="btn ghost" href="{% url 'accounts:profile_edit' %}">{% include "_icon.html" with name="edit" %} تعديل الملف</a>
+      {% else %}
+        <form method="post" action="{% url 'feed:follow' owner.username %}">{% csrf_token %}
+          <button class="btn {% if is_following %}ghost{% else %}primary{% endif %}">{% if is_following %}إلغاء المتابعة{% else %}متابعة{% endif %}</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <h2 class="p-name">{{ owner.profile.display_name }}</h2>
   <div class="muted" dir="ltr">@{{ owner.username }}</div>
-  {% if owner.profile.bio %}<p>{{ owner.profile.bio }}</p>{% endif %}
-  <div class="muted stats"><span>{{ followers_count }} متابِع</span> · <span>{{ following_count }} يتابع</span></div>
-  {% if owner == user %}
-    <a class="btn ghost" href="{% url 'accounts:profile_edit' %}">تعديل الملف</a>
-  {% else %}
-    <form method="post" action="{% url 'feed:follow' owner.username %}">{% csrf_token %}
-      <button class="btn {% if is_following %}ghost{% else %}primary{% endif %}">{% if is_following %}إلغاء المتابعة{% else %}متابعة{% endif %}</button>
-    </form>
-  {% endif %}
+  {% if owner.profile.bio %}<p class="p-bio">{{ owner.profile.bio }}</p>{% endif %}
+
+  <ul class="p-meta">
+    {% if owner.profile.location %}<li>{% include "_icon.html" with name="pin" %}{{ owner.profile.location }}</li>{% endif %}
+    {% if owner.profile.website %}<li>{% include "_icon.html" with name="link" %}<a href="{{ owner.profile.website }}" rel="nofollow noopener" target="_blank" dir="ltr">{{ owner.profile.website|cut:"https://"|cut:"http://" }}</a></li>{% endif %}
+    <li>{% include "_icon.html" with name="calendar" %}انضم في {{ owner.date_joined|date:"F Y" }}</li>
+  </ul>
+
+  <div class="p-stats">
+    <a href="{% url 'feed:follow_list' owner.username 'following' %}"><strong>{{ following_count }}</strong> <span class="muted">يتابع</span></a>
+    <a href="{% url 'feed:follow_list' owner.username 'followers' %}"><strong>{{ followers_count }}</strong> <span class="muted">متابِع</span></a>
+  </div>
 </section>
+
+<div class="tabs" role="tablist">
+  <a href="?tab=posts" role="tab" aria-selected="{% if tab == 'posts' %}true{% else %}false{% endif %}">التغريدات</a>
+  <a href="?tab=likes" role="tab" aria-selected="{% if tab == 'likes' %}true{% else %}false{% endif %}">الإعجابات</a>
+</div>
+
 <section aria-label="التغريدات">
   {% for post in page %}{% include "feed/_post.html" %}
-  {% empty %}<p class="muted pad">لم ينشر شيئاً بعد.</p>{% endfor %}
+  {% empty %}<p class="muted pad">{% if tab == 'likes' %}لا توجد إعجابات بعد.{% else %}لم ينشر شيئاً بعد.{% endif %}</p>{% endfor %}
 </section>
 {% include "feed/_pager.html" %}
 {% endblock %}
