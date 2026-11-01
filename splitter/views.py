@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from . import services
-from .forms import MAX_PARTS, SplitForm
+from .forms import MAX_BYTES, MAX_PARTS, SplitForm
 from .models import VideoJob, VideoPart
 
 
@@ -53,6 +53,7 @@ def index(request):
         _settle(j)
     return render(request, "splitter/index.html", {
         "form": form, "jobs": jobs, "available": available, "nav": "splitter",
+        "max_mb": MAX_BYTES // (1024 * 1024),
     })
 
 

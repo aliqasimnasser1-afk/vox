@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load splitter_tags %}
 {% block title %}تقسيم الفيديو · Vox{% endblock %}
 {% block content %}
@@ -11,7 +12,7 @@
     <div class="notice-box error" role="alert">{% include "_icon.html" with name="alert" %}<span>أداة ffmpeg غير مثبّتة على الجهاز، لذلك لا يمكن تقسيم الفيديو.</span></div>
   {% endif %}
 
-  <form method="post" enctype="multipart/form-data" class="stack" id="split-form" novalidate data-upload>
+  <form method="post" enctype="multipart/form-data" class="stack" id="split-form" novalidate data-upload data-chunk-init="{% url 'splitter:chunk_init' %}" data-chunk-url="{% url 'splitter:chunk' %}" data-chunk-finish="{% url 'splitter:chunk_finish' %}" data-chunk-abort="{% url 'splitter:chunk_abort' %}" data-chunk-min="20971520">
     {% csrf_token %}
     {% for e in form.non_field_errors %}<div class="error" role="alert">{{ e }}</div>{% endfor %}
     <label class="dropzone" for="{{ form.video.id_for_label }}">
@@ -36,7 +37,7 @@
         <span class="mode-text"><strong>دقيق</strong><span class="muted small-txt">أطوال متساوية بالضبط. أبطأ لأنه يعيد الترميز، ويستخدم كل أنوية المعالج معاً.</span></span>
       </label>
     </fieldset>
-    <p class="muted small-txt">الصيغ: mp4, mov, mkv, webm, avi. الحد الأقصى 2 جيجابايت و300 جزء.</p>
+    <p class="muted small-txt">الصيغ: mp4, mov, mkv, webm, avi. الحد الأقصى {{ max_mb }} ميجابايت و300 جزء.</p>
     <button class="btn primary" id="split-btn" {% if not available %}disabled{% endif %}>{% include "_icon.html" with name="split" %} قسّم الفيديو</button>
   </form>
 </section>
@@ -58,4 +59,5 @@
 {% endif %}
 
 
+<script src="{% static 'chunked.js' %}" defer></script>
 {% endblock %}

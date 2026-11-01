@@ -17,6 +17,8 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
 os.environ["DEBUG"] = "0"
 os.environ["MEDIA_IN_DB"] = "1"          # uploads live in the database (PythonAnywhere's disk is small)
 os.environ["PYTHONANYWHERE_DOMAIN"] = DOMAIN
+# Free accounts have 512 MB of disk (source + parts) and a 100 MB per-request proxy limit (chunked upload handles that).
+os.environ["MAX_VIDEO_MB"] = "150"
 
 from django.core.wsgi import get_wsgi_application  # noqa: E402
 
