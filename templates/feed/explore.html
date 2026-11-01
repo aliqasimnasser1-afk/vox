@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}استكشاف · Vox{% endblock %}
+{% block content %}
+<header class="page-head"><h1>استكشاف</h1></header>
+<section class="pad-form">
+  <form method="get" action="{% url 'feed:search' %}" class="search-form" role="search">
+    <span class="search-ico">{% include "_icon.html" with name="search" %}</span>
+    <input type="search" name="q" placeholder="ابحث عن تغريدات أو أشخاص أو #وسوم" maxlength="80" aria-label="بحث">
+    <button class="btn primary">بحث</button>
+  </form>
+</section>
+
+<h2 class="section-title">{% include "_icon.html" with name="trending" %} الأكثر تداولاً</h2>
+<section aria-label="الترند">
+  {% for t in trend_rows %}
+  <a class="trend-row" href="{% url 'feed:tag' t.name %}">
+    <span class="trend-rank">{{ forloop.counter }}</span>
+    <span class="trend-main"><strong dir="auto">#{{ t.name }}</strong><span class="muted small-txt">{{ t.n }} تغريدة</span></span>
+    {% include "_icon.html" with name="chevron-left" %}
+  </a>
+  {% empty %}
+  <div class="empty">
+    {% include "_icon.html" with name="hash" %}
+    <h2>لا يوجد ترند بعد</h2>
+    <p>اكتب وسماً مثل <bdi>#رياضة</bdi> في تغريدتك، وحين يستخدمه الناس يظهر هنا.</p>
+    <a class="btn primary" href="{% url 'feed:post_create' %}">{% include "_icon.html" with name="edit" %} نشر تغريدة</a>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

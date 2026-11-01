@@ -6,7 +6,10 @@ app_name = "feed"
 
 urlpatterns = [
     path("", views.home, name="home"),
-    path("post/", views.post_create, name="post_create"),
+    path("compose/", views.post_create, name="post_create"),
+    path("explore/", views.explore, name="explore"),
+    path("search/", views.search, name="search"),
+    path("tags/<str:name>/", views.tag_page, name="tag"),
     path("post/<int:post_id>/", views.post_detail, name="post_detail"),
     path("post/<int:post_id>/like/", views.like_toggle, name="like"),
     path("post/<int:post_id>/bookmark/", views.bookmark_toggle, name="bookmark"),

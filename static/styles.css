@@ -533,3 +533,53 @@ dialog.lightbox.zoomed .lb-caption, dialog.lightbox.zoomed .lb-nav { opacity: .0
 @media (hover: none) { .expand-btn { opacity: 1; } }
 .expand-btn:hover { background: rgba(0,0,0,.85); }
 img.avatar.xl { cursor: zoom-in; }
+
+
+/* ───────── Compose page, trending, search, FAB, private note ───────── */
+.composer-page { border-bottom: 0; padding-top: 20px; }
+.composer-page textarea { min-height: 150px; font-size: 20px; }
+.hint.tip { display: flex; align-items: center; gap: 8px; margin: 0; }
+.hint.tip .ico { width: 16px; height: 16px; color: var(--accent); }
+.hashtag { color: var(--accent); text-decoration: none; font-weight: 500; }
+.hashtag:hover { text-decoration: underline; }
+
+.trend-strip { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); overflow: hidden; }
+.trend-label { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.trend-label .ico { width: 19px; height: 19px; }
+.trend-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.trend-chips::-webkit-scrollbar { display: none; }
+.pad-chips { padding: 4px 16px 12px; flex-wrap: wrap; overflow: visible; }
+.chip { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; padding: 6px 14px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); text-decoration: none; font-size: 14.5px; transition: background-color .2s, border-color .2s, transform .15s; }
+.chip:hover { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); transform: translateY(-1px); }
+.chip-n { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chip.more { color: var(--accent); font-weight: 600; }
+
+.trend-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); text-decoration: none; transition: background-color .15s; }
+.trend-row:hover { background: var(--surface-2); }
+.trend-row .ico { width: 18px; height: 18px; color: var(--muted); }
+.trend-rank { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+.trend-main { display: grid; flex: 1; min-width: 0; line-height: 1.4; }
+.trend-row.compact { padding: 8px 16px; border-bottom: 0; }
+.rail-more { display: block; padding: 10px 16px 6px; color: var(--accent); text-decoration: none; font-size: 14.5px; font-weight: 600; }
+.rail-more:hover { text-decoration: underline; }
+.section-title { display: flex; align-items: center; gap: 8px; }
+.section-title .ico { width: 19px; height: 19px; color: var(--accent); }
+
+.search-form { display: flex; align-items: center; gap: 8px; position: relative; }
+.search-form input { padding-inline-start: 44px; border-radius: 999px; }
+.search-ico { position: absolute; inset-inline-start: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); display: grid; pointer-events: none; }
+.search-ico .ico { width: 19px; height: 19px; }
+.rail-search { position: relative; }
+.rail-search input { padding-inline-start: 44px; border-radius: 999px; }
+
+.private-note { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 16px; font-size: 14px; color: var(--muted); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.private-note .ico { width: 16px; height: 16px; color: var(--accent); }
+.tabs a .ico { width: 15px; height: 15px; vertical-align: -2px; margin-inline-end: 2px; }
+
+.fab { display: none; }
+@media (max-width: 759px) {
+  .fab { position: fixed; z-index: 9; inset-inline-end: 16px; bottom: 76px; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--grad); color: var(--on-accent); box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 45%, transparent); transition: transform .15s; }
+  .fab:active { transform: scale(.94); }
+  .fab .ico { width: 24px; height: 24px; stroke-width: 2.2; }
+  .head-act { display: none; }
+}

@@ -2,13 +2,14 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from . import hashtags
 from .forms import PostForm
-from .models import Bookmark, Follow, Like, Notification, Post
+from .models import Bookmark, Follow, Hashtag, Like, Notification, Post
 from .notifications import notify, unnotify
 
 
@@ -51,25 +52,27 @@ def home(request):
         ids = list(request.user.following.values_list("followee_id", flat=True)) + [request.user.id]
         posts = posts.filter(author_id__in=ids)
     page = paginate(request, annotated(posts, request.user))
-    return render(request, "feed/home.html", {"page": page, "tab": tab, "form": PostForm(), "nav": "home"})
+    return render(request, "feed/home.html", {"page": page, "tab": tab, "nav": "home"})
 
 
 @login_required
-@require_POST
 def post_create(request):
-    form = PostForm(request.POST, request.FILES)
-    if form.is_valid():
-        post = Post(author=request.user, content=form.cleaned_data["content"])
-        media = form.cleaned_data["media"]
-        if media:
-            kind, f = media
-            getattr(post, kind).save(f.name, f, save=False)
-        post.save()
-        messages.success(request, "تم نشر التغريدة.")
+    """The compose page: write a post, attach one image or video. Home only shows posts."""
+    if request.method == "POST":
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = Post(author=request.user, content=form.cleaned_data["content"])
+            media = form.cleaned_data["media"]
+            if media:
+                kind, f = media
+                getattr(post, kind).save(f.name, f, save=False)
+            post.save()
+            hashtags.attach(post)
+            messages.success(request, "تم نشر التغريدة.")
+            return redirect("feed:home")
     else:
-        errs = [e for field in form.errors.values() for e in field]
-        messages.error(request, errs[0] if errs else "تعذّر النشر.")
-    return redirect("feed:home")
+        form = PostForm()
+    return render(request, "feed/compose.html", {"form": form, "nav": "compose"})
 
 
 @login_required
@@ -78,9 +81,10 @@ def post_detail(request, post_id):
     return render(request, "feed/post_detail.html", {"post": post, "nav": ""})
 
 
-def _render_post(request, post_id):
+def _render_actions(request, post_id):
+    """Only the action bar is swapped, so a playing video is never re-rendered (and never stops)."""
     post = annotated(Post.objects.filter(pk=post_id), request.user).first()
-    return render(request, "feed/_post.html", {"post": post})
+    return render(request, "feed/_actions.html", {"post": post})
 
 
 def _hx(request):
@@ -97,7 +101,7 @@ def like_toggle(request, post_id):
     else:
         like.delete()
         unnotify(post.author, request.user, Notification.LIKE, post)
-    return _render_post(request, post.pk) if _hx(request) else redirect(safe_next(request))
+    return _render_actions(request, post.pk) if _hx(request) else redirect(safe_next(request))
 
 
 @login_required
@@ -110,8 +114,8 @@ def bookmark_toggle(request, post_id):
     if _hx(request):
         # On the favorites page an un-saved post disappears from the list.
         if not created and "/bookmarks/" in request.headers.get("HX-Current-URL", ""):
-            return HttpResponse("")
-        return _render_post(request, post.pk)
+            return HttpResponse("", headers={"HX-Retarget": f"#post-{post.pk}", "HX-Reswap": "outerHTML"})
+        return _render_actions(request, post.pk)
     return redirect(safe_next(request))
 
 
@@ -160,10 +164,16 @@ def notification_badge(request):
 @login_required
 def profile(request, username):
     owner = get_object_or_404(User.objects.select_related("profile"), username=username)
-    tab = "likes" if request.GET.get("tab") == "likes" else "posts"
+    tab = request.GET.get("tab")
+    if tab == "saved" and owner != request.user:
+        tab = "posts"  # favorites are private: only the account owner can open this tab
+    if tab not in ("likes", "saved"):
+        tab = "posts"
     if tab == "likes":
         liked_ids = Like.objects.filter(user=owner).values("post_id")
         qs = Post.objects.filter(pk__in=liked_ids)
+    elif tab == "saved":
+        qs = Post.objects.filter(pk__in=Bookmark.objects.filter(user=owner).values("post_id"))
     else:
         qs = owner.posts.all()
     return render(request, "feed/profile.html", {
@@ -210,3 +220,40 @@ def follow_toggle(request, username):
     if nxt.startswith("/") and not nxt.startswith("//"):
         return redirect(nxt)
     return redirect("feed:profile", username=username)
+
+
+# ───────── hashtags, explore, search ─────────
+
+@login_required
+def tag_page(request, name):
+    tag = get_object_or_404(Hashtag, name=name.lower())
+    qs = tag.posts.all()
+    return render(request, "feed/tag.html", {
+        "tag": tag, "page": paginate(request, annotated(qs, request.user)),
+        "total": tag.posts.count(), "nav": "explore",
+    })
+
+
+@login_required
+def explore(request):
+    """Trending hashtags with their post counts, plus the search box."""
+    return render(request, "feed/explore.html", {"trend_rows": hashtags.trending(15), "nav": "explore"})
+
+
+@login_required
+def search(request):
+    q = request.GET.get("q", "").strip()[:80]
+    if q.startswith("#") and len(q) > 1:
+        tag = q.lstrip("#").lower()
+        if Hashtag.objects.filter(name=tag).exists():
+            return redirect("feed:tag", name=tag)
+    needle = q.lstrip("#@")
+    posts = people = tags = None
+    if len(needle) >= 2:
+        posts = annotated(Post.objects.filter(content__icontains=needle), request.user)[:30]
+        people = (User.objects.filter(Q(username__icontains=needle) | Q(profile__display_name__icontains=needle))
+                  .select_related("profile")[:10])
+        tags = Hashtag.objects.filter(name__icontains=needle.lower()).annotate(n=Count("posts"))[:10]
+    return render(request, "feed/search.html", {
+        "q": q, "posts": posts, "people": people, "tags": tags, "nav": "explore",
+    })

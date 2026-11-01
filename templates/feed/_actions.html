@@ -1,0 +1,18 @@
+<div class="actions" id="actions-{{ post.id }}">
+  <button class="act{% if post.liked %} liked{% endif %}"
+          hx-post="{% url 'feed:like' post.id %}" hx-target="#actions-{{ post.id }}" hx-swap="outerHTML"
+          aria-pressed="{% if post.liked %}true{% else %}false{% endif %}"
+          aria-label="{% if post.liked %}إلغاء الإعجاب{% else %}إعجاب{% endif %}">
+    {% include "_icon.html" with name="heart" fill=post.liked %}<span>{{ post.like_count }}</span>
+  </button>
+  <button class="act{% if post.bookmarked %} saved{% endif %}"
+          hx-post="{% url 'feed:bookmark' post.id %}" hx-target="#actions-{{ post.id }}" hx-swap="outerHTML"
+          aria-pressed="{% if post.bookmarked %}true{% else %}false{% endif %}"
+          aria-label="{% if post.bookmarked %}إزالة من المفضلة{% else %}إضافة إلى المفضلة{% endif %}">
+    {% include "_icon.html" with name="bookmark" fill=post.bookmarked %}
+  </button>
+  {% if post.author_id == request.user.id %}
+  <button class="act danger" hx-post="{% url 'feed:delete' post.id %}" hx-target="#post-{{ post.id }}" hx-swap="outerHTML"
+          hx-confirm="حذف هذه التغريدة؟" data-confirm-title="حذف التغريدة" data-confirm-text="سيتم حذف هذه التغريدة نهائياً مع ما فيها من صور أو فيديو، ولا يمكن التراجع." data-confirm-ok="نعم، احذفها" aria-label="حذف التغريدة">{% include "_icon.html" with name="trash" %}</button>
+  {% endif %}
+</div>

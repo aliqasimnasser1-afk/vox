@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 
+from .hashtags import trending
 from .models import Notification
 
 User = get_user_model()
@@ -21,4 +22,5 @@ def sidebar(request):
     return {
         "unread_count": Notification.objects.filter(recipient=user, is_read=False).count(),
         "suggestions": suggestions,
+        "trending": trending(6),
     }

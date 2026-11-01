@@ -1,4 +1,4 @@
-<article class="post" id="post-{{ post.id }}">
+{% load feed_tags %}<article class="post" id="post-{{ post.id }}">
   <a href="{% url 'feed:profile' post.author.username %}" class="av-link" tabindex="-1" aria-hidden="true">{% include "_avatar.html" with profile=post.author.profile cls="" %}</a>
   <div class="post-body">
     <div class="post-head">
@@ -6,26 +6,9 @@
       <span class="muted handle" dir="ltr">@{{ post.author.username }}</span>
       <a href="{% url 'feed:post_detail' post.id %}" class="muted time">· {{ post.created_at|timesince }}</a>
     </div>
-    {% if post.content %}<p class="content">{{ post.content }}</p>{% endif %}
+    {% if post.content %}<p class="content">{{ post.content|with_tags }}</p>{% endif %}
     {% if post.image %}<a href="{{ post.image.url }}" class="media-link" data-lightbox="image" aria-label="عرض الصورة"><img class="post-media" src="{{ post.image.url }}" alt="صورة مرفقة بالتغريدة" loading="lazy"></a>{% endif %}
     {% if post.video %}<div class="video-wrap"><video class="post-media" controls preload="metadata" src="{{ post.video.url }}"></video><button type="button" class="expand-btn" data-lightbox="video" data-src="{{ post.video.url }}" aria-label="عرض الفيديو بملء الشاشة" title="ملء الشاشة">{% include "_icon.html" with name="maximize" %}</button></div>{% endif %}
-    <div class="actions">
-      <button class="act{% if post.liked %} liked{% endif %}"
-              hx-post="{% url 'feed:like' post.id %}" hx-target="#post-{{ post.id }}" hx-swap="outerHTML"
-              aria-pressed="{% if post.liked %}true{% else %}false{% endif %}"
-              aria-label="{% if post.liked %}إلغاء الإعجاب{% else %}إعجاب{% endif %}">
-        {% include "_icon.html" with name="heart" fill=post.liked %}<span>{{ post.like_count }}</span>
-      </button>
-      <button class="act{% if post.bookmarked %} saved{% endif %}"
-              hx-post="{% url 'feed:bookmark' post.id %}" hx-target="#post-{{ post.id }}" hx-swap="outerHTML"
-              aria-pressed="{% if post.bookmarked %}true{% else %}false{% endif %}"
-              aria-label="{% if post.bookmarked %}إزالة من المفضلة{% else %}إضافة إلى المفضلة{% endif %}">
-        {% include "_icon.html" with name="bookmark" fill=post.bookmarked %}
-      </button>
-      {% if post.author_id == request.user.id %}
-      <button class="act danger" hx-post="{% url 'feed:delete' post.id %}" hx-target="#post-{{ post.id }}" hx-swap="outerHTML"
-              hx-confirm="حذف هذه التغريدة؟" data-confirm-title="حذف التغريدة" data-confirm-text="سيتم حذف هذه التغريدة نهائياً مع ما فيها من صور أو فيديو، ولا يمكن التراجع." data-confirm-ok="نعم، احذفها" aria-label="حذف التغريدة">{% include "_icon.html" with name="trash" %}</button>
-      {% endif %}
-    </div>
+    {% include "feed/_actions.html" %}
   </div>
 </article>

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}بحث: {{ q }} · Vox{% endblock %}
+{% block content %}
+<header class="page-head"><a href="{% url 'feed:explore' %}" class="back" aria-label="رجوع">{% include "_icon.html" with name="arrow-right" %}</a><h1>البحث</h1></header>
+<section class="pad-form">
+  <form method="get" action="{% url 'feed:search' %}" class="search-form" role="search">
+    <span class="search-ico">{% include "_icon.html" with name="search" %}</span>
+    <input type="search" name="q" value="{{ q }}" placeholder="ابحث عن تغريدات أو أشخاص أو #وسوم" maxlength="80" aria-label="بحث">
+    <button class="btn primary">بحث</button>
+  </form>
+</section>
+
+{% if posts is None %}
+  <p class="muted pad">اكتب حرفين على الأقل للبحث.</p>
+{% else %}
+  {% if tags %}
+  <h2 class="section-title">وسوم</h2>
+  <div class="trend-chips pad-chips">{% for t in tags %}<a href="{% url 'feed:tag' t.name %}" class="chip">#{{ t.name }}<span class="chip-n">{{ t.n }}</span></a>{% endfor %}</div>
+  {% endif %}
+  {% if people %}
+  <h2 class="section-title">أشخاص</h2>
+  {% for u in people %}
+  <a class="who row-item" href="{% url 'feed:profile' u.username %}">
+    <span class="who-link">{% include "_avatar.html" with profile=u.profile cls="" %}<span class="me-text"><strong>{{ u.profile.display_name }}</strong><span class="muted" dir="ltr">@{{ u.username }}</span></span></span>
+  </a>
+  {% endfor %}
+  {% endif %}
+  <h2 class="section-title">تغريدات</h2>
+  {% for post in posts %}{% include "feed/_post.html" %}
+  {% empty %}<p class="muted pad">لا توجد تغريدات مطابقة.</p>{% endfor %}
+{% endif %}
+{% endblock %}

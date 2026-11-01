@@ -140,3 +140,19 @@
     show(idx + (dx < 0 ? 1 : -1)); // swipe left = next (RTL)
   }, { passive: true });
 })();
+
+/* Videos: only one plays at a time, and playback stops when the user leaves the site's tab or window. */
+(function () {
+  document.addEventListener('play', function (e) {
+    if (!e.target || e.target.tagName !== 'VIDEO') return;
+    document.querySelectorAll('video').forEach(function (v) { if (v !== e.target && !v.paused) v.pause(); });
+  }, true);
+
+  function pauseAll() { document.querySelectorAll('video').forEach(function (v) { if (!v.paused) v.pause(); }); }
+  document.addEventListener('visibilitychange', function () { if (document.hidden) pauseAll(); });
+  window.addEventListener('pagehide', pauseAll);
+  window.addEventListener('blur', function () {
+    // Switching to another window/app: pause too (ignore blur caused by clicking into a video iframe-less page).
+    if (document.hidden || !document.hasFocus()) pauseAll();
+  });
+})();

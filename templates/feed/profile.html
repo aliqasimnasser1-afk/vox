@@ -47,14 +47,16 @@
   </div>
 </section>
 
-<div class="tabs" role="tablist">
+<div class="tabs{% if owner == user %} tabs-3{% endif %}" role="tablist">
   <a href="?tab=posts" role="tab" aria-selected="{% if tab == 'posts' %}true{% else %}false{% endif %}">التغريدات</a>
   <a href="?tab=likes" role="tab" aria-selected="{% if tab == 'likes' %}true{% else %}false{% endif %}">الإعجابات</a>
+  {% if owner == user %}<a href="?tab=saved" role="tab" aria-selected="{% if tab == 'saved' %}true{% else %}false{% endif %}">{% include "_icon.html" with name="lock" %} المفضلة</a>{% endif %}
 </div>
+{% if tab == 'saved' %}<p class="private-note">{% include "_icon.html" with name="lock" %} هذه القائمة خاصة بك، لا يراها أحد غيرك.</p>{% endif %}
 
 <section aria-label="التغريدات">
   {% for post in page %}{% include "feed/_post.html" %}
-  {% empty %}<p class="muted pad">{% if tab == 'likes' %}لا توجد إعجابات بعد.{% else %}لم ينشر شيئاً بعد.{% endif %}</p>{% endfor %}
+  {% empty %}<p class="muted pad">{% if tab == 'likes' %}لا توجد إعجابات بعد.{% elif tab == 'saved' %}لم تحفظ شيئاً بعد. اضغط أيقونة الإشارة المرجعية تحت أي تغريدة.{% else %}لم ينشر شيئاً بعد.{% endif %}</p>{% endfor %}
 </section>
 {% include "feed/_pager.html" %}
 {% endblock %}

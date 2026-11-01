@@ -60,6 +60,7 @@
     <nav class="nav" aria-label="القائمة الرئيسية">
       <p class="nav-title">التصفح</p>
       <a href="{% url 'feed:home' %}" class="{% if nav == 'home' %}active{% endif %}" {% if nav == 'home' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="home" %}<span class="nav-label">الرئيسية</span></a>
+      <a href="{% url 'feed:explore' %}" class="{% if nav == 'explore' %}active{% endif %}" {% if nav == 'explore' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="hash" %}<span class="nav-label">استكشاف</span></a>
       <a href="{% url 'feed:bookmarks' %}" class="{% if nav == 'bookmarks' %}active{% endif %}" {% if nav == 'bookmarks' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="bookmark" %}<span class="nav-label">المفضلة</span></a>
 
       <p class="nav-title">التواصل</p>
@@ -75,7 +76,7 @@
       <p class="nav-title">حسابي</p>
       <a href="{% url 'feed:profile' user.username %}" class="{% if nav == 'profile' %}active{% endif %}" {% if nav == 'profile' %}aria-current="page"{% endif %}>{% include "_icon.html" with name="user" %}<span class="nav-label">الملف الشخصي</span></a>
     </nav>
-    <a href="{% url 'feed:home' %}#id_content" class="btn primary block compose-btn">{% include "_icon.html" with name="edit" %}<span>نشر تغريدة</span></a>
+    <a href="{% url 'feed:post_create' %}" class="btn primary block compose-btn">{% include "_icon.html" with name="edit" %}<span>نشر تغريدة</span></a>
     <div class="me">
       <a href="{% url 'feed:profile' user.username %}" class="me-link">
         {% include "_avatar.html" with profile=user.profile cls="sm" %}
@@ -95,6 +96,19 @@
   </main>
 
   <aside class="rail">
+    <form method="get" action="{% url 'feed:search' %}" class="rail-search" role="search">
+      <span class="search-ico">{% include "_icon.html" with name="search" %}</span>
+      <input type="search" name="q" placeholder="بحث" maxlength="80" aria-label="بحث">
+    </form>
+    {% if trending %}
+    <section class="card">
+      <h2>{% include "_icon.html" with name="trending" %} الترند</h2>
+      {% for t in trending %}
+      <a class="trend-row compact" href="{% url 'feed:tag' t.name %}"><span class="trend-main"><strong dir="auto">#{{ t.name }}</strong><span class="muted small-txt">{{ t.n }} تغريدة</span></span></a>
+      {% endfor %}
+      <a class="rail-more" href="{% url 'feed:explore' %}">عرض المزيد</a>
+    </section>
+    {% endif %}
     {% if suggestions %}
     <section class="card">
       <h2>{% include "_icon.html" with name="sparkles" %} اقتراحات المتابعة</h2>
@@ -112,20 +126,22 @@
       {% endfor %}
     </section>
     {% endif %}
-    <p class="muted foot">Vox · تطبيق تجريبي</p>
   </aside>
 </div>
+
+<a href="{% url 'feed:post_create' %}" class="fab" aria-label="نشر تغريدة">{% include "_icon.html" with name="edit" %}</a>
 
 <nav class="bottom-nav" aria-label="القائمة السفلية">
   <a href="{% url 'feed:home' %}" class="{% if nav == 'home' %}active{% endif %}" aria-label="الرئيسية">{% include "_icon.html" with name="home" %}</a>
   <a href="{% url 'social:friends' %}" class="{% if nav == 'friends' %}active{% endif %}" aria-label="الأصدقاء">{% include "_icon.html" with name="users" %}{% if friend_requests_count %}<span class="dot"></span>{% endif %}</a>
   <a href="{% url 'social:inbox' %}" class="{% if nav == 'messages' %}active{% endif %}" aria-label="الرسائل">{% include "_icon.html" with name="message" %}{% if unread_messages_count %}<span class="dot"></span>{% endif %}</a>
   <a href="{% url 'feed:notifications' %}" class="{% if nav == 'notifications' %}active{% endif %}" aria-label="الإشعارات">{% include "_icon.html" with name="bell" %}{% if unread_count %}<span class="dot"></span>{% endif %}</a>
-  <button type="button" class="more-btn{% if nav == 'profile' or nav == 'bookmarks' or nav == 'splitter' %} active{% endif %}" data-sheet-toggle aria-label="المزيد" aria-expanded="false">{% include "_icon.html" with name="menu" %}</button>
+  <button type="button" class="more-btn{% if nav == 'profile' or nav == 'bookmarks' or nav == 'splitter' or nav == 'explore' %} active{% endif %}" data-sheet-toggle aria-label="المزيد" aria-expanded="false">{% include "_icon.html" with name="menu" %}</button>
 </nav>
 <div class="sheet-backdrop" data-sheet-close hidden></div>
 <div class="sheet" id="more-sheet" role="dialog" aria-label="المزيد" hidden>
   <a href="{% url 'feed:profile' user.username %}">{% include "_icon.html" with name="user" %}<span>الملف الشخصي</span></a>
+  <a href="{% url 'feed:explore' %}">{% include "_icon.html" with name="hash" %}<span>استكشاف والترند</span></a>
   <a href="{% url 'feed:bookmarks' %}">{% include "_icon.html" with name="bookmark" %}<span>المفضلة</span></a>
   <a href="{% url 'splitter:index' %}">{% include "_icon.html" with name="split" %}<span>تقسيم الفيديو</span></a>
   <button type="button" data-theme-toggle><span class="when-dark">{% include "_icon.html" with name="sun" %}</span><span class="when-light">{% include "_icon.html" with name="moon" %}</span><span>تبديل المظهر</span></button>

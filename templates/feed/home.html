@@ -1,59 +1,32 @@
 {% extends "base.html" %}
 {% block content %}
-<header class="page-head"><h1>الرئيسية</h1></header>
+<header class="page-head"><h1>الرئيسية</h1><a class="btn primary small head-act" href="{% url 'feed:post_create' %}">{% include "_icon.html" with name="edit" %} تغريدة جديدة</a></header>
 
-<form class="composer" method="post" action="{% url 'feed:post_create' %}" enctype="multipart/form-data" data-upload>
-  {% csrf_token %}
-  {% include "_avatar.html" with profile=user.profile cls="" %}
-  <div class="composer-main">
-    <label class="sr" for="id_content">اكتب تغريدة</label>
-    {{ form.content }}
-    <div class="media-preview" id="media-preview" hidden>
-      <img alt="" id="preview-img" hidden><video id="preview-vid" controls hidden></video>
-      <button type="button" class="preview-x" id="preview-x" aria-label="إزالة المرفق">{% include "_icon.html" with name="x" %}</button>
-    </div>
-    <div class="composer-bar">
-      <div class="composer-tools">
-        <label class="tool-btn" title="إضافة صورة أو فيديو" for="id_media">{% include "_icon.html" with name="image" %}<span class="sr">إضافة صورة أو فيديو</span></label>
-        {{ form.media }}
-        <span class="count" id="count" aria-live="polite">280</span>
-      </div>
-      <button class="btn primary" id="send">{% include "_icon.html" with name="edit" %} نشر</button>
-    </div>
+{% if trending %}
+<section class="trend-strip" aria-label="الترند">
+  <span class="trend-label">{% include "_icon.html" with name="trending" %} الترند</span>
+  <div class="trend-chips">
+    {% for t in trending %}<a href="{% url 'feed:tag' t.name %}" class="chip">#{{ t.name }}<span class="chip-n">{{ t.n }}</span></a>{% endfor %}
+    <a href="{% url 'feed:explore' %}" class="chip more">المزيد</a>
   </div>
-</form>
+</section>
+{% endif %}
 
 <div class="tabs" role="tablist">
-  <a href="?tab=all" role="tab" aria-selected="{% if tab == 'all' %}true{% else %}false{% endif %}">للجميع</a>
+  <a href="?tab=all" role="tab" aria-selected="{% if tab == 'all' %}true{% else %}false{% endif %}">الأحدث</a>
   <a href="?tab=following" role="tab" aria-selected="{% if tab == 'following' %}true{% else %}false{% endif %}">المتابَعون</a>
 </div>
 
 <section aria-label="التغريدات">
   {% for post in page %}{% include "feed/_post.html" %}
-  {% empty %}<p class="muted pad">{% if tab == 'following' %}تابع أشخاصاً لتظهر تغريداتهم هنا.{% else %}لا توجد تغريدات بعد. كن أول من ينشر!{% endif %}</p>
+  {% empty %}
+  <div class="empty">
+    {% include "_icon.html" with name="edit" %}
+    <h2>{% if tab == 'following' %}لا توجد تغريدات من متابَعيك{% else %}لا توجد تغريدات بعد{% endif %}</h2>
+    <p>{% if tab == 'following' %}تابع أشخاصاً لتظهر تغريداتهم هنا.{% else %}كن أول من ينشر.{% endif %}</p>
+    <a class="btn primary" href="{% url 'feed:post_create' %}">{% include "_icon.html" with name="edit" %} نشر تغريدة</a>
+  </div>
   {% endfor %}
 </section>
 {% include "feed/_pager.html" %}
-
-<script>
-  (function () {
-    var t = document.getElementById('id_content'), c = document.getElementById('count'), b = document.getElementById('send'), m = document.getElementById('id_media');
-    function update() {
-      var left = 280 - t.value.length;
-      c.textContent = left;
-      c.className = 'count' + (left < 0 ? ' over' : left < 20 ? ' warn' : '');
-      b.disabled = left < 0 || (t.value.trim().length === 0 && !m.files.length);
-    }
-    t.addEventListener('input', update);
-    var box = document.getElementById('media-preview'), pi = document.getElementById('preview-img'), pv = document.getElementById('preview-vid');
-    function clearMedia() { m.value = ''; box.hidden = true; pi.hidden = pv.hidden = true; pi.removeAttribute('src'); pv.removeAttribute('src'); update(); }
-    m.addEventListener('change', function () {
-      if (!m.files.length) return clearMedia();
-      var f = m.files[0], url = URL.createObjectURL(f), isVid = f.type.indexOf('video') === 0;
-      pi.hidden = isVid; pv.hidden = !isVid; (isVid ? pv : pi).src = url; box.hidden = false; update();
-    });
-    document.getElementById('preview-x').addEventListener('click', clearMedia);
-    update();
-  })();
-</script>
 {% endblock %}

@@ -6,7 +6,8 @@ A small X-style social app built with Django. Local development only.
 notification center with a live unread badge (polls every 8s), follow/unfollow with a "following"
 timeline and follower lists, full profiles (avatar upload, bio, location, website, posts and likes tabs),
 friends by username (requests, accept/decline) and private messages between friends, posts with images or
-videos, post pages, who-to-follow suggestions, responsive layout (sidebar, right rail, mobile bottom nav),
+videos, hashtags with a trending list, explore and search, a separate compose page, a private favorites tab on your
+own profile, post pages, who-to-follow suggestions, responsive layout (sidebar, right rail, mobile bottom nav),
 video splitter (upload a video, choose a length in seconds or minutes; fast stream-copy mode splits a
 15-minute video in about 2 s, precise mode re-encodes in parallel; progress, preview, per-part download and ZIP), pagination, Django admin.
 

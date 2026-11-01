@@ -17,11 +17,20 @@ def post_video_path(instance, filename):
     return f"posts/videos/{uuid.uuid4().hex}{Path(filename).suffix.lower()}"
 
 
+class Hashtag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"#{self.name}"
+
+
 class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts")
     content = models.CharField(max_length=MAX_LEN, blank=True)
     image = models.ImageField(upload_to=post_image_path, blank=True)
     video = models.FileField(upload_to=post_video_path, blank=True)
+    hashtags = models.ManyToManyField(Hashtag, related_name="posts", blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}نشر تغريدة · Vox{% endblock %}
+{% block content %}
+<header class="page-head"><a href="{% url 'feed:home' %}" class="back" aria-label="رجوع">{% include "_icon.html" with name="arrow-right" %}</a><h1>نشر تغريدة</h1></header>
+
+<form class="composer composer-page" method="post" action="{% url 'feed:post_create' %}" enctype="multipart/form-data" data-upload>
+  {% csrf_token %}
+  {% include "_avatar.html" with profile=user.profile cls="" %}
+  <div class="composer-main">
+    {% for e in form.non_field_errors %}<div class="notice-box error" role="alert">{% include "_icon.html" with name="alert" %}<span>{{ e }}</span></div>{% endfor %}
+    {% for e in form.content.errors %}<div class="notice-box error" role="alert">{% include "_icon.html" with name="alert" %}<span>{{ e }}</span></div>{% endfor %}
+    {% for e in form.media.errors %}<div class="notice-box error" role="alert">{% include "_icon.html" with name="alert" %}<span>{{ e }}</span></div>{% endfor %}
+    <label class="sr" for="id_content">اكتب تغريدة</label>
+    {{ form.content }}
+    <div class="media-preview" id="media-preview" hidden>
+      <img alt="" id="preview-img" hidden><video id="preview-vid" controls hidden></video>
+      <button type="button" class="preview-x" id="preview-x" aria-label="إزالة المرفق">{% include "_icon.html" with name="x" %}</button>
+    </div>
+    <p class="hint tip">{% include "_icon.html" with name="hash" %} أضف وسوماً مثل <bdi>#رياضة</bdi> أو <bdi>#tech</bdi> لتظهر تغريدتك في صفحة الوسم والترند.</p>
+    <div class="composer-bar">
+      <div class="composer-tools">
+        <label class="tool-btn" title="إضافة صورة أو فيديو" for="id_media">{% include "_icon.html" with name="image" %}<span class="sr">إضافة صورة أو فيديو</span></label>
+        {{ form.media }}
+        <span class="count" id="count" aria-live="polite">280</span>
+      </div>
+      <button class="btn primary" id="send">{% include "_icon.html" with name="edit" %} نشر</button>
+    </div>
+  </div>
+</form>
+
+<script>
+  (function () {
+    var t = document.getElementById('id_content'), c = document.getElementById('count'), b = document.getElementById('send'), m = document.getElementById('id_media');
+    function update() {
+      var left = 280 - t.value.length;
+      c.textContent = left;
+      c.className = 'count' + (left < 0 ? ' over' : left < 20 ? ' warn' : '');
+      b.disabled = left < 0 || (t.value.trim().length === 0 && !m.files.length);
+    }
+    t.addEventListener('input', update);
+    var box = document.getElementById('media-preview'), pi = document.getElementById('preview-img'), pv = document.getElementById('preview-vid');
+    function clearMedia() { m.value = ''; box.hidden = true; pi.hidden = pv.hidden = true; pi.removeAttribute('src'); pv.removeAttribute('src'); update(); }
+    m.addEventListener('change', function () {
+      if (!m.files.length) return clearMedia();
+      var f = m.files[0], url = URL.createObjectURL(f), isVid = f.type.indexOf('video') === 0;
+      pi.hidden = isVid; pv.hidden = !isVid; (isVid ? pv : pi).src = url; box.hidden = false; update();
+    });
+    document.getElementById('preview-x').addEventListener('click', clearMedia);
+    update();
+    t.focus();
+  })();
+</script>
+{% endblock %}
